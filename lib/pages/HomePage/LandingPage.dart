@@ -7,6 +7,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:foodecommerce/pages/HomePage/hotelCategory.dart';
 import 'package:foodecommerce/pages/ItemViewAll/viewProductDetail.dart';
 import 'package:foodecommerce/utils/colorUtil.dart';
+import 'package:foodecommerce/utils/utils.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 
@@ -16,6 +17,7 @@ import '../../styles/style.dart';
 import '../../utils/constants.dart';
 import '../../utils/sizeLocal.dart';
 import '../../widgets/bottomPainter.dart';
+import '../../widgets/calculation.dart';
 import '../../widgets/companySettingsTextField.dart';
 import '../../widgets/innerShadowTBContainer.dart';
 import '../ItemViewAll/ViewAll.dart';
@@ -49,7 +51,9 @@ class _HomePageState extends State<HomePage> {
       "Rate": "250.00",
       "FavVegNon": "Non-Veg",
       "FavColorCatg": 0xffFF0022,
-      "FavSubtitle": "Comments"
+      "FavSubtitle": "Comments",
+      "IsAdd":false,
+      "Qty":0,
     },
     {
       "FavImg": "assets/images/foodimgs/chicken.jpg",
@@ -57,7 +61,9 @@ class _HomePageState extends State<HomePage> {
       "Rate": "59.00",
       "FavVegNon": "Non-veg",
       "FavColorCatg": 0xffFF0022,
-      "FavSubtitle": "Comments"
+      "FavSubtitle": "Comments",
+      "IsAdd":false,
+      "Qty":0,
     },
     {
       "FavImg": "assets/images/foodimgs/STRAWBERRY-LASSI.jpg",
@@ -65,7 +71,9 @@ class _HomePageState extends State<HomePage> {
       "Rate": "299.00",
       "FavVegNon": "Veg",
       "FavColorCatg": 0xff007F11,
-      "FavSubtitle": "Comments"
+      "FavSubtitle": "Comments",
+      "IsAdd":false,
+      "Qty":0,
     },
     {
       "FavImg": "assets/images/foodimgs/cold-press-juice-pineapple.jpg",
@@ -73,7 +81,9 @@ class _HomePageState extends State<HomePage> {
       "Rate": "150.00",
       "FavVegNon": "Veg",
       "FavColorCatg": 0xff007F11,
-      "FavSubtitle": "Comments"
+      "FavSubtitle": "Comments",
+      "IsAdd":false,
+      "Qty":0,
     },
     {
       "FavImg": "assets/images/foodimgs/sweet.jpg",
@@ -81,7 +91,9 @@ class _HomePageState extends State<HomePage> {
       "Rate": "99.00",
       "FavVegNon": "Veg",
       "FavColorCatg": 0xff007F11,
-      "FavSubtitle": "Comments"
+      "FavSubtitle": "Comments",
+      "IsAdd":false,
+      "Qty":0,
     },
     {
       "FavImg": "assets/images/foodimgs/biriyani.webp",
@@ -89,7 +101,9 @@ class _HomePageState extends State<HomePage> {
       "Rate": "140.00",
       "FavVegNon": "Non-Veg",
       "FavColorCatg": 0xffFF0022,
-      "FavSubtitle": "Comments"
+      "FavSubtitle": "Comments",
+      "IsAdd":false,
+      "Qty":0,
     },
     {
       "FavImg": "assets/images/foodimgs/ice-cream-pistachio.jpg",
@@ -97,7 +111,9 @@ class _HomePageState extends State<HomePage> {
       "Rate": "170.00",
       "FavVegNon": "Veg",
       "FavColorCatg": 0xff007F11,
-      "FavSubtitle": "Comments"
+      "FavSubtitle": "Comments",
+      "IsAdd":false,
+      "Qty":0,
     },
     {
       "FavImg": "assets/images/foodimgs/dessert-gulab-jamoon-hot.jpg",
@@ -105,7 +121,9 @@ class _HomePageState extends State<HomePage> {
       "Rate": "80.00",
       "FavVegNon": "Veg",
       "FavColorCatg": 0xff007F11,
-      "FavSubtitle": "Comments"
+      "FavSubtitle": "Comments",
+      "IsAdd":false,
+      "Qty":0,
     },
     {
       "FavImg": "assets/images/foodimgs/sankranti-special-boneless-chicken-biriyani.jpg",
@@ -113,7 +131,9 @@ class _HomePageState extends State<HomePage> {
       "Rate": "199.00",
       "FavVegNon": "Non-veg",
       "FavColorCatg": 0xffFF0022,
-      "FavSubtitle": "Meals"
+      "FavSubtitle": "Meals",
+      "IsAdd":false,
+      "Qty":0,
     },
     {
       "FavImg": "assets/images/foodimgs/Paneer-Pepper-Fry.jpg",
@@ -121,7 +141,9 @@ class _HomePageState extends State<HomePage> {
       "Rate": "250.00",
       "FavVegNon": "Veg",
       "FavColorCatg": 0xff007F11,
-      "FavSubtitle": "Comments"
+      "FavSubtitle": "Comments",
+      "IsAdd":false,
+      "Qty":0,
     },
     {
       "FavImg": "assets/images/foodimgs/Tiffen.png",
@@ -129,7 +151,9 @@ class _HomePageState extends State<HomePage> {
       "Rate": "130.00",
       "FavVegNon": "Veg",
       "FavColorCatg": 0xff007F11,
-      "FavSubtitle": "Morning Special"
+      "FavSubtitle": "Morning Special",
+      "IsAdd":false,
+      "Qty":0,
     },
     {
       "FavImg": "assets/images/foodimgs/CURRY-DOSA-GOAT.jpg",
@@ -137,7 +161,9 @@ class _HomePageState extends State<HomePage> {
       "Rate": "99.00",
       "FavVegNon": "Veg",
       "FavColorCatg": 0xff007F11,
-      "FavSubtitle": "Evening Special"
+      "FavSubtitle": "Evening Special",
+      "IsAdd":false,
+      "Qty":0,
     },
   ];
   List<dynamic> TrendingFood = [
@@ -186,7 +212,16 @@ class _HomePageState extends State<HomePage> {
   ];
   var animStart = false.obs;
   var showSplash = true.obs;
-
+  var isItemAdd = false.obs;
+  int totalItem=0;
+  double totalAmt=0.0;
+  void totalCalc(){
+    totalItem=FavItems.where((element) => element['IsAdd']).toList().length;
+    totalAmt=0.0;
+    FavItems.where((element) => element['IsAdd']).forEach((element) {
+      totalAmt=Calculation().add(totalAmt, Calculation().mul(element['Rate'], element['Qty']));
+    });
+  }
   @override
   void initState() {
     initAnim();
@@ -569,8 +604,13 @@ class _HomePageState extends State<HomePage> {
                                                     Addons(context);
                                                   }
                                                   else{
+                                                    FavItems[i]['Qty']=1;
                                                     FavItems[i]['IsAdd']=true;
+                                                    totalCalc();
                                                     setState(() {});
+                                                    if(!isItemAdd.value){
+                                                      isItemAdd.value=true;
+                                                    }
                                                   }
 
                                                 },
@@ -602,14 +642,27 @@ class _HomePageState extends State<HomePage> {
                                                 child: Row(
                                                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                                                   children: [
-                                                    addRemoveBtn(Icon(Icons.add,color: ColorUtil.primaryColor,size: 25,)),
-                                                    Text("10",style: TSWhite166,),
                                                     addRemoveBtn(Icon(Icons.remove,color: ColorUtil.primaryColor,size: 25,),
                                                         onTap: (){
-                                                          FavItems[i]['IsAdd']=false;
+                                                          FavItems[i]['Qty']--;
+                                                          if(FavItems[i]['Qty']<=0){
+                                                            FavItems[i]['Qty']=0;
+                                                            FavItems[i]['IsAdd']=false;
+                                                            isItemAdd.value=FavItems.any((element) => element['IsAdd']);
+                                                          }
+                                                          totalCalc();
                                                           setState(() {});
                                                         }
                                                     ),
+                                                    Text("${FavItems[i]['Qty']}",style: TSWhite166,),
+                                                    addRemoveBtn(Icon(Icons.add,color: ColorUtil.primaryColor,size: 25,),
+                                                        onTap: (){
+                                                          FavItems[i]['Qty']++;
+                                                          totalCalc();
+                                                          setState(() {});
+                                                        }
+                                                    ),
+
                                                   ],
                                                 ),
                                               ),
@@ -630,7 +683,12 @@ class _HomePageState extends State<HomePage> {
                   ),
               ),
             ),
-            bottomNavigationBar:  Container(
+          ),
+          Obx(() => AnimatedPositioned(
+            duration: MyConstants.animeDuration,
+            bottom: isItemAdd.value?0:-100,
+            curve: Curves.easeIn,
+            child: Container(
               width: SizeConfig.screenWidth,
               // height:_keyboardVisible?0:  70,
               height: 65,
@@ -664,18 +722,20 @@ class _HomePageState extends State<HomePage> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text('28 Items',style: TextStyle(fontFamily: 'RB',fontSize: 18,color: ColorUtil.themeColor),),
-                        Text('Pay 2,199',style: TextStyle(fontFamily: 'RB',fontSize: 18,color:ColorUtil.themeColor,fontWeight: FontWeight.bold),)
+                        Text('$totalItem Items',style: TextStyle(fontFamily: 'RB',fontSize: 18,color: ColorUtil.themeColor),),
+                        Text('Pay ${getRupeeString(totalAmt)}',style: TextStyle(fontFamily: 'RB',fontSize: 18,color:ColorUtil.themeColor,fontWeight: FontWeight.bold),)
                       ],
                     ),
                   )
                 ],
               ),
             ),
-          ),
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: GestureDetector(
+          ),),
+          Obx(() => AnimatedPositioned(
+            duration: MyConstants.animeDuration,
+            curve: Curves.easeIn,
+            bottom: isItemAdd.value?0:-100,
+            child:GestureDetector(
                 onTap: () {
                   Navigator.push(
                     context,
@@ -683,66 +743,72 @@ class _HomePageState extends State<HomePage> {
                   );
                 },
                 child: Container(
-                    width: 80,
-                    height: 80,
-                    margin: const EdgeInsets.only(bottom: 15),
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: ColorUtil.themeColor,
-                      boxShadow: [
-                        BoxShadow(
-                          color: ColorUtil.themeColor.withOpacity(0.5),
-                          blurRadius: 20.0, // soften the shadow
-                          spreadRadius: 0.0, //extend the shadow
-                          offset: const Offset(
-                            0.0, // Move to right 10  horizontally
-                            10.0, // Move to bottom 10 Vertically
-                          ),
-                        )
-                      ],
-                    ),
-                    child: Stack(
-                      children: [
-                        Align(
-                        alignment: Alignment.center,
-                          child: const Icon(
-                            Icons.shopping_bag_outlined,
-                            color: Color(0xffffffff),
-                            size: 40,
-                          ),
-                        ),
-                        Positioned(
-                          right: 8,
-                          top: 15,
-                          child: Container(
-                            width: 30,
-                            height: 30,
+                  width: SizeConfig.screenWidth,
+                  alignment: Alignment.center,
+                  child: Container(
+                      width: 80,
+                      height: 80,
+                      margin: const EdgeInsets.only(bottom: 15),
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: ColorUtil.themeColor,
+                        boxShadow: [
+                          BoxShadow(
+                            color: ColorUtil.themeColor.withOpacity(0.5),
+                            blurRadius: 20.0, // soften the shadow
+                            spreadRadius: 0.0, //extend the shadow
+                            offset: const Offset(
+                              0.0, // Move to right 10  horizontally
+                              10.0, // Move to bottom 10 Vertically
+                            ),
+                          )
+                        ],
+                      ),
+                      child: Stack(
+                        children: [
+                          Align(
                             alignment: Alignment.center,
-                            decoration: const BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: Color(0xff9E203F),
-                            ),
-                            child: const Text(
-                              '12',
-                              style: TextStyle(
-                                  fontFamily: 'RM',
-                                  fontSize: 14,
-                                  color: Colors.white),
+                            child: const Icon(
+                              Icons.shopping_bag_outlined,
+                              color: Color(0xffffffff),
+                              size: 40,
                             ),
                           ),
-                        )
-                      ],
-                    ))),
-          ),
+                          Positioned(
+                            right: 8,
+                            top: 15,
+                            child: Container(
+                              width: 30,
+                              height: 30,
+                              alignment: Alignment.center,
+                              decoration: const BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: Color(0xff9E203F),
+                              ),
+                              child: Text(
+                                '$totalItem',
+                                style: TextStyle(
+                                    fontFamily: 'RM',
+                                    fontSize: 15,
+                                    color: Colors.white),
+                              ),
+                            ),
+                          )
+                        ],
+                      )),
+                )),
+          ),),
+
           Obx(() => Visibility(
               visible: showSplash.value,
-              child: AnimatedPositioned(
-                duration: const Duration(milliseconds: 300),
-                top: animStart.value ? -SizeConfig.screenHeight! : 0,
-                child: AnimatedOpacity(
-                  opacity: animStart.value ? 0 : 1,
-                  duration: const Duration(milliseconds: 500),
+              child: Positioned(
+                top: 0,
+                //duration: const Duration(milliseconds: 300),
+               // top: animStart.value ? -SizeConfig.screenHeight! : 0,
+                child: Opacity(
+                  opacity:/* animStart.value ? 0 : */1,
+                 // duration: const Duration(milliseconds: 500),
                   child: Container(
                     height: SizeConfig.screenHeight,
                     width: SizeConfig.screenWidth,
@@ -751,18 +817,21 @@ class _HomePageState extends State<HomePage> {
                       crossAxisAlignment: CrossAxisAlignment.center,
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Image.asset(
-                            'assets/images/landingPage/icons8-location.gif'),
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Center(
-                            child: Text(
-                              '26F5+J25, Thiru Vi Ka Industrial Estate, Saidapet, Chennai, Tamil Nadu 600032',
-                              style: TextStyle(
-                                  fontFamily: 'RR',
-                                  color: ColorUtil.grey1,
-                                  fontSize: 14),
-                              textAlign: TextAlign.center,
+                        Image.asset('assets/images/landingPage/icons8-location.gif'),
+                        AnimatedOpacity(
+                          opacity: animStart.value ? 0 : 1,
+                          duration: const Duration(milliseconds: 500),
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Center(
+                              child: Text(
+                                '26F5+J25, Thiru Vi Ka Industrial Estate, Saidapet, Chennai, Tamil Nadu 600032',
+                                style: TextStyle(
+                                    fontFamily: 'RR',
+                                    color: ColorUtil.grey1,
+                                    fontSize: 14),
+                                textAlign: TextAlign.center,
+                              ),
                             ),
                           ),
                         )
@@ -792,9 +861,9 @@ class _HomePageState extends State<HomePage> {
   }
 
   void initAnim() {
-    Timer(const Duration(seconds: 3), () {
+    Timer(const Duration(milliseconds: 1600), () {
       animStart.value = true;
-      Timer(const Duration(seconds: 1), () {
+      Timer(const Duration(milliseconds: 500), () {
         showSplash.value = false;
       });
     });
