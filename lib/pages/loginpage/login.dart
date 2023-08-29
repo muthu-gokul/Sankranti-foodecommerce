@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:foodecommerce/api/ApiManager.dart';
+import 'package:foodecommerce/notifier/Billing/configuration.dart';
 import 'package:foodecommerce/pages/loginpage/mail-otp/components/otp_form.dart';
 import 'package:foodecommerce/styles/style.dart';
 import 'package:foodecommerce/utils/colorUtil.dart';
 
+import '../../api/sp.dart';
+import '../../models/parameterMode.dart';
+import '../../notifier/utils/apiUtils.dart';
 import '../../utils/sizeLocal.dart';
 import '../navHomeScreen.dart';
 import 'phone-otp/otp_screen.dart';
@@ -225,15 +230,18 @@ class _loginPageState extends State<loginPage>
                                                     left: 20, top: 10),
                                                 //   fillColor: loginvalidation?HexColor("1C1F32"):Colors.white,
                                               ),
-                                              keyboardType:
-                                              TextInputType.emailAddress,
+                                              keyboardType: TextInputType.number,
+                                              maxLength: 10,
                                               validator: (value) {
+                                                if(value!.length<10){
+                                                  return 'Phone Number format is invalid';
+                                                }
                                                 Pattern pattern =
-                                                    r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$';
+                                                    r'^\d{0,10}';
                                                 RegExp regex =
                                                 new RegExp(pattern as String);
                                                 if (!regex.hasMatch(value!)) {
-                                                  return 'Email format is invalid';
+                                                  return 'Phone Number format is invalid';
                                                 } else {
                                                   return null;
                                                 }
@@ -248,15 +256,16 @@ class _loginPageState extends State<loginPage>
                                           ),
                                           GestureDetector(
                                             onTap: () {
-                                              // if(_loginFormKey.currentState!.validate()){
-                                              //
-                                              // }
-                                              Navigator.push(
-                                                context,
-                                                MaterialPageRoute(
-                                                    builder: (context) =>
-                                                        PhoneScreen()),
-                                              );
+                                              if(_loginFormKey.currentState!.validate()){
+                                                onLogin();
+                                                /*Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                      builder: (context) =>
+                                                          PhoneScreen()),
+                                                );*/
+                                              }
+
                                             },
                                             child: Container(
                                               height: 60,
@@ -295,4 +304,25 @@ class _loginPageState extends State<loginPage>
       ),
     );
   }
+
+
+  void onLogin() async{
+    params=[];
+    params.add(ParameterModel(Key: "SpName", Type: "String", Value: Sp.insertOtp));
+    params.add(ParameterModel(Key: "CustomerName", Type: "String", Value: username.text));
+    params.add(ParameterModel(Key: "DeviceId", Type: "String", Value: getDeviceId()));
+    params.add(ParameterModel(Key: "database", Type: "String", Value: await getDatabase()));
+    ApiManager.GetInvoke(params).then((value){
+      print("$value");
+      if(value[0]){
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) =>
+                  PhoneScreen(username.text)),
+        );
+      }
+    });
+  }
+
 }

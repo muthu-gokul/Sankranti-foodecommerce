@@ -1,54 +1,91 @@
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
+import '../models/parameterMode.dart';
+import '../notifier/utils/apiUtils.dart';
+import '../utils/constants.dart';
+
+RxBool showLoader=RxBool(false);
 
 
 //BuildContext context
 class ApiManager{
-
-   ApiCallGetInvoke(var body,) async {
+  ApiManager._();
+  static int timeOut=120;
+  static Future<List> GetInvoke(List<ParameterModel> parameterList,{needElegantNoti=false,hideLoaders=false,needInputJson=false}) async {
+    String invokeUrl="";
+    parameterList.add(ParameterModel(Key: "Version", Type: "String", Value: MyConstants.appVersion));
+    if(needInputJson) {
+      parameterList.add(ParameterModel(Key: "InputJson", Type: "String", Value: json.encode(parameterList)));
+    }
+    if(hideLoaders){
+      showLoader.value=false;
+    }
+    else{
+      showLoader.value=true;
+    }
     try{
-
-
-    // var itemsUrl="http://192.168.1.102//nextStop_dev///api/Mobile/GetInvoke";
-      var itemsUrl="http://45.126.252.78/nextStop_dev/api/Mobile/GetInvoke";
-
-      final response = await http.post(Uri.parse(itemsUrl),
+      //log(json.encode(parameterList));
+      invokeUrl=GetBaseUrl()+"/api/Mobile/GetInvoke";
+      var body={
+        "Fields": parameterList.map((e) => e.toJson()).toList()
+      };
+      log(json.encode(parameterList));
+      final response = await http.post(Uri.parse(invokeUrl),
           headers: {"Content-Type": "application/json"},
           body: json.encode(body)
-      ).timeout(Duration(seconds: 30),onTimeout: ()=>onTme());
-      print("${response.statusCode} ${response.body}");
+      ).timeout(Duration(seconds: timeOut),onTimeout: ()=>onTme());
+      showLoader.value=false;
       if(response.statusCode==200){
         return [true,response.body];
       }
-      else{
-
+      else if(response.statusCode==500){
         var msg;
-        // print(msg);
-         print("${response.statusCode} ${response.body}");
         msg=json.decode(response.body);
+        if(needElegantNoti){
+          //addNotifications(NotificationType.error,msg: msg['Message']);
+
+          /*ElegantNotification.error(
+            title:  Text("Error",style: ts18(AppTheme.bgColor),),
+            description:  Text(msg['Message'],style: ts15(AppTheme.darkGrey1),),
+          ).show(Get.context!);*/
+        }
+        else{
+          //CustomAlert().commonErrorAlert( "Error",msg['Message']);
+        }
         return [false,msg['Message']];
-        // return response.statusCode.toString();
+      }
+      else{
+        if(needElegantNoti){
+          //addNotifications(NotificationType.error,msg: response.body);
+          /*ElegantNotification.error(
+              title:  Text("Error",style: ts18(AppTheme.bgColor),),
+              description:  Text(response.body,style: ts15(AppTheme.darkGrey1),)
+          ).show(Get.context!);*/
+        }
+        else{
+          //CustomAlert().commonErrorAlert( "Error",response.body);
+        }
+        return [false,response.body];
       }
     }
-    catch(e){
-      print("ee $e");
+    catch(e,t){
+      print("ee $e $t");
+      showLoader.value=false;
+      //isServerReConnect.value=true;
+      //CustomAlert().commonErrorAlert("Server Error", "$e");
       return [false,"Catch Api"];
-
     }
   }
 
-  onTme(){
+
+  static onTme(){
     return [false,"Connection TimeOut"];
   }
 }
-/*
-http.post(url,
-body: json.encode(body),
-headers: { 'Content-type': 'application/json',
-'Accept': 'application/json',
-"Authorization": "Some token"},
-encoding: encoding)*/
+
+
