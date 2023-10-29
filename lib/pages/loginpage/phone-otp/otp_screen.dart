@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:foodecommerce/notifier/utils.dart';
+import 'package:scutiwidgets/alertDialog.dart';
 import '../../../api/ApiManager.dart';
 import '../../../api/sp.dart';
 import '../../../models/parameterMode.dart';
@@ -68,7 +69,7 @@ class PhoneScreen extends StatelessWidget {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Text("$phoneNumber",style: TextStyle(fontSize: 30,fontFamily: 'RB',color: ColorUtil.thWhite),),
+                                Text("$phoneNumber",style: TextStyle(fontSize: 20,fontFamily: 'RB',color: ColorUtil.thWhite),),
                                 SizedBox(width: 10,),
                                 GestureDetector(
                                   onTap: (){
@@ -177,7 +178,10 @@ class PhoneScreen extends StatelessWidget {
           setSharedPrefString(parsed["Table"][0]["CustomerId"], SP_USER_ID);
           customerId=parseInt(parsed["Table"][0]["CustomerId"]);
           createPin("");
-          //Navigator.push(context, MaterialPageRoute(builder: (context)=>BranchSelect()),);
+          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>BranchSelect()),);
+        }
+        else{
+          CustomAlert().cupertinoAlertDialog(context, value[1]);
         }
       });
     }

@@ -1,9 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:foodecommerce/notifier/Billing/outletDetail.dart';
 import 'package:foodecommerce/utils/colorUtil.dart';
+import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 import '../notifier/themeNotifier.dart';
+import '../notifier/utils.dart';
+import '../notifier/utils/apiUtils.dart';
+import '../utils/constants.dart';
 import '../utils/sizeLocal.dart';
+import '../widgets/customNetworkImg.dart';
 import 'HomePage/Cartpage.dart';
 import 'HomePage/LandingPage.dart';
 import 'HomePage/Notification.dart';
@@ -18,12 +24,21 @@ class Masterpage extends StatefulWidget {
   @override
   _MasterpageState createState() => _MasterpageState();
 }
-
+RxInt menuSel=RxInt(1);
 class _MasterpageState extends State<Masterpage> {
-  @override
+
   GlobalKey <ScaffoldState> scaffoldkey=new GlobalKey<ScaffoldState>();
-  int menuSel=1;
+
   late  double width,height,width2;
+
+  @override
+  void initState() {
+    getBillingOutlet();
+    getProfileDetail();
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     width=MediaQuery.of(context).size.width;
     height=MediaQuery.of(context).size.height;
@@ -75,6 +90,7 @@ class _MasterpageState extends State<Masterpage> {
                       ),
                       child: GestureDetector(
                         onTap: (){
+                          scaffoldkey.currentState!.openEndDrawer();
                           Navigator.push(context, MaterialPageRoute(builder: (context)=>ViewProfile(),));
                         },
                         child: Container(
@@ -85,13 +101,32 @@ class _MasterpageState extends State<Masterpage> {
                                 shape: BoxShape.circle
                             ),
                             clipBehavior: Clip.antiAlias,
-                            child: Image.asset("assets/images/landingPage/avatar-01.jpg")
+                            child: Obx(()=>Container(
+                                height: 145,
+                                width: 145,
+                                decoration: const BoxDecoration(
+                                    color: Colors.white,
+                                    shape: BoxShape.circle
+                                ),
+                                clipBehavior: Clip.antiAlias,
+                                child: profileDetail.isEmpty? Image.asset("assets/images/landingPage/avatar-01.jpg"):
+                                CustomNetworkImg(
+                                  dbFilePath: profileDetail['CustomerImage'],
+                                  directoryPath: MyConstants.imgPath,
+                                  height: 145,
+                                  loaderHeight: 145,
+                                  loaderWidth: 145,
+                                  errorImage: "assets/images/landingPage/avatar-01.jpg",
+                                  baseUrl: GetBaseUrl() +'/AppAttachments/',
+                                  fit: BoxFit.cover,
+                                )
+                            ))
                         ),
                       )
                   ),
                   SizedBox(height: 10,),
-                  Container(
-                    child: Text('Mr. Balasubramaniyan v'
+                  Obx(
+                    ()=> Text('${profileDetail['CustomerName']??""}'
                       ,style: TextStyle(fontFamily: 'RB',fontSize: 17,color: Colors.white,letterSpacing: 0.1),),
                   ),
                   SizedBox(height: 5,),
@@ -113,9 +148,7 @@ class _MasterpageState extends State<Masterpage> {
               DrawerContent(
                 title: 'Home',
                 ontap: (){
-                  setState(() {
-                    menuSel=1;
-                  });
+                  menuSel.value=1;
                   scaffoldkey.currentState!.openEndDrawer();
                 },
               ),
@@ -131,9 +164,7 @@ class _MasterpageState extends State<Masterpage> {
               DrawerContent(
                 title: 'Orders History',
                 ontap: (){
-                  setState(() {
-                    menuSel=4;
-                  });
+                  menuSel.value=4;
                   scaffoldkey.currentState!.openEndDrawer();
                 },
               ),
@@ -146,7 +177,7 @@ class _MasterpageState extends State<Masterpage> {
               //     scaffoldkey.currentState!.openEndDrawer();
               //   },
               // ),
-              DrawerContent(
+             /* DrawerContent(
                 title: 'Notifications',
                 ontap: (){
                   setState(() {
@@ -154,7 +185,7 @@ class _MasterpageState extends State<Masterpage> {
                   });
                   scaffoldkey.currentState!.openEndDrawer();
                 },
-              ),
+              ),*/
               // DrawerContent(
               //   title: 'Settings',
               //   ontap: (){
@@ -168,23 +199,24 @@ class _MasterpageState extends State<Masterpage> {
               DrawerContent(
                 title: 'LogOut',
                 ontap: (){
-                  Navigator.push(context, MaterialPageRoute(builder: (context)=>loginPage()),);
+                  clearSession();
+                  Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>loginPage()),);
                 },
               ),
               // Divider(color: Color(0xff099FAF),thickness: 0.1,),
             ],
           ),
         ),
-        body:menuSel==1?HomePage(
+        body:Obx(()=>menuSel.value==1?HomePage(
           voidCallback:(){
             scaffoldkey.currentState!.openDrawer();
           },
-        ) :menuSel==4?MYOrderDetails (
+        ) :menuSel.value==4?MYOrderDetails (
           voidCallback:(){
 
             scaffoldkey.currentState!.openDrawer();
           },
-        ):menuSel==6?NotificationBar (
+        )/*:menuSel==6?NotificationBar (
           voidCallback:(){
 
             scaffoldkey.currentState!.openDrawer();
@@ -194,7 +226,7 @@ class _MasterpageState extends State<Masterpage> {
 
             scaffoldkey.currentState!.openDrawer();
           },
-        ):Container(),
+        )*/:Container()),
       ),
 
 

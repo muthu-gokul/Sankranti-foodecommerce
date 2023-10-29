@@ -1,15 +1,17 @@
 import 'package:flutter/cupertino.dart';
 
 class ColorUtil {
-  static Color primary=const Color(0xFFDAAA46);
+  static Color primary=const Color(0xFFD8AB44);
   static Color themeColor = Color(0xFF33180D);
   static Color themeBlack = Color(0xFF33180D);
   static Color themeWhite = Color(0xFFFFFFFF);
-  static Color themeColorBg = Color(0xFFF1F1F1);
+  static Color themeColorBg = Color(0xFFF6F9FB);
+  static Color themeColorBg2 = Color(0xFFebebeb);
   static Color primaryColor = Color(0xFFDAAA46);
   static Color primaryTextColor1 = Color(0xFF8C8C8C);
   static Color primaryTextColor2 = Color(0xFF383838);
   static Color primaryTextColor3 = Color(0xFF717171);
+  static Color primaryTextColor4 = Color(0xFF4c4c62);
   static Color textFieldBorderColor = Color(0xFFC8C8C8);
   static Color errorTextColor = Color(0xFFF44336);
   static Color rating = Color(0xFFE4BE49);

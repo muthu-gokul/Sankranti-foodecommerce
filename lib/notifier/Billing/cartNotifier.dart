@@ -60,7 +60,7 @@ bool IsProductBlock(pId,orderType){
   return false;
 }
 
-Future<void> onProductClick(e,{int gridIndex=-1}) async {
+Future<void> onProductClick(e) async {
   
   if(IsProductBlock(e['ProductId'], c_OrderTypeId.value)){
     return;
@@ -86,7 +86,7 @@ Future<void> onProductClick(e,{int gridIndex=-1}) async {
   }
   if (e['IsProductWeightEnable'].toString() == "true") {
     if(e['ParentProductId']!=null){
-      Get.back();
+      //Get.back();
     }
     onWQClick(e);
     return;
@@ -95,53 +95,6 @@ Future<void> onProductClick(e,{int gridIndex=-1}) async {
     c_orderDetail.value!.addProduct(e, 1);
     c_orderDetail.refresh();
   }
-
-  if(e['IsSeveralProduct'] ==null){
-    if(filterModifiers[gridIndex]['tapCount']==null){
-      filterModifiers[gridIndex]['tapCount']=1;
-    }
-    else{
-      filterModifiers[gridIndex]['tapCount']=filterModifiers[gridIndex]['tapCount']!+1;
-    }
-    itemSplashModifierSelected.value=gridIndex;
-    Timer(Duration(milliseconds: 300), (){
-      itemSplashModifierSelected.value=-1;
-    });
-  }
-  else{
-    if(filterproduct[gridIndex]['tapCount']==null){
-      filterproduct[gridIndex]['tapCount']=1;
-    }
-    else{
-      filterproduct[gridIndex]['tapCount']=filterproduct[gridIndex]['tapCount']!+1;
-    }
-    itemSplashSelected.value=gridIndex;
-    Timer(Duration(milliseconds: 300), (){
-      itemSplashSelected.value=-1;
-    });
-  }
-
-  Timer(Duration(milliseconds: 300), (){
-    try{
-      itemSplashCountArray[gridIndex]=itemSplashCountArray[gridIndex]+1;
-      if(e['IsSeveralProduct'] ==null){
-        if(itemSplashCountArray[gridIndex]==filterModifiers[gridIndex]['tapCount']){
-          filterModifiers[gridIndex]['tapCount']=0;
-          itemSplashCountArray[gridIndex]=0;
-        }
-      }
-      else{
-        if(itemSplashCountArray[gridIndex]==filterproduct[gridIndex]['tapCount']){
-          filterproduct[gridIndex]['tapCount']=0;
-          itemSplashCountArray[gridIndex]=0;
-        }
-      }
-    }catch(e){
-      itemSplashCountArray=List.filled(filterproduct.length, 0);
-    }
-  });
-  //end
-
 }
 
 void onProductDelete(productId){
@@ -320,4 +273,47 @@ void onWQClose() {
   WQ_Qty.value="";
   WQ_Subtotal.value="";
   bk_weightProduct = null;
+}
+
+getCurrentProductQty(productId){
+  if(!HasCurrentItems()){
+    return 0;
+  }
+  int index=c_orderDetail.value!.productList!.indexWhere((element) => element.productId==productId);
+  if(index==-1){
+    return 0;
+  }
+  else{
+    return c_orderDetail.value!.productList![index].quantity!.toInt();
+  }
+}
+bool checkCurrentProduct(productId){
+  if(!HasCurrentItems()){
+    return false;
+  }
+  int index=c_orderDetail.value!.productList!.indexWhere((element) => element.productId==productId);
+  if(index==-1){
+    return false;
+  }
+  else{
+    return true;
+  }
+}
+RxBool addBtnRefresh=RxBool(false);
+void addBtnHandler(productId,{bool isAdd=true}){
+  int index=c_orderDetail.value!.productList!.indexWhere((element) => element.productId==productId);
+  if(isAdd){
+    c_orderDetail.value!.updateProductQty(c_orderDetail.value!.productList![index].productId, c_orderDetail.value!.productList![index].quantity!+1);
+    c_orderDetail.refresh();
+  }
+  else{
+    if(c_orderDetail.value!.productList![index].quantity!>1){
+      c_orderDetail.value!.updateProductQty(c_orderDetail.value!.productList![index].productId, c_orderDetail.value!.productList![index].quantity!-1);
+      c_orderDetail.refresh();
+    }
+    else{
+      onProductDelete(productId);
+    }
+  }
+
 }

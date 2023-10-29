@@ -1,17 +1,20 @@
 import 'dart:async';
+import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:foodecommerce/utils/colorUtil.dart';
+import 'package:foodecommerce/utils/constants.dart';
 import 'package:get/get.dart';
-import 'package:provider/provider.dart';
-import '../../notifier/themeNotifier.dart';
+import 'package:intl/intl.dart';
+import '../../api/ApiManager.dart';
+import '../../models/parameterMode.dart';
+import '../../notifier/utils/apiUtils.dart';
 import '../../styles/constants.dart';
 import '../../styles/style.dart';
 import '../../utils/sizeLocal.dart';
 import '../../widgets/bottomPainter.dart';
-import '../../widgets/companySettingsTextField.dart';
 import '../../widgets/innerShadowTBContainer.dart';
+import '../../widgets/shimmer.dart';
 import '../HomePage/Cartpage.dart';
 import 'OrderDeliveryDetails.dart';
 
@@ -24,7 +27,7 @@ class MYOrderDetails extends StatefulWidget {
 }
 
 class _MYOrderDetailsState extends State<MYOrderDetails> {
-  @override
+
   late double width, height, width2, height2;
   bool openText = false;
   close() {
@@ -86,6 +89,18 @@ class _MYOrderDetailsState extends State<MYOrderDetails> {
       "FavSubtitle": "01-07-2023 / 9:30 AM"
     },
   ];
+
+  @override
+  void initState() {
+    loadOrders();
+    super.initState();
+  }
+
+  RxBool isLoading=RxBool(false);
+  RxList onGoingOrders=RxList();
+  RxList completedOrders=RxList();
+
+  @override
   Widget build(BuildContext context) {
     width = MediaQuery.of(context).size.width;
     height = MediaQuery.of(context).size.height;
@@ -101,27 +116,70 @@ class _MYOrderDetailsState extends State<MYOrderDetails> {
               body: Container(
                 height: height,
                 width: width,
+                alignment: Alignment.topCenter,
+                color: Colors.white,
                 child: SingleChildScrollView(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      Obx(() => Visibility(
+                        visible: isLoading.value,
+                        child: Container(
+                          height: height,
+                          width: width,
+                          color: Colors.white,
+                          child: Shimmer.fromColors(
+                              baseColor: Colors.grey.shade300,
+                              highlightColor: Colors.grey.shade100,
+                              enabled: true,
+                              child: ListView(
+                                //crossAxisAlignment: CrossAxisAlignment.start,
+                                //  mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const BannerPlaceholder(),
+                                  TitlePlaceholder(width: width),
+                                  const SizedBox(height: 16.0),
+                                  const ContentPlaceholder(
+                                    lineType: ContentLineType.threeLines,
+                                  ),
+                                  const SizedBox(height: 16.0),
+                                  const TitlePlaceholder(width: 200.0),
+                                  const SizedBox(height: 16.0),
+                                  const ContentPlaceholder(
+                                    lineType: ContentLineType.twoLines,
+                                  ),
+                                  const SizedBox(height: 16.0),
+                                  const TitlePlaceholder(width: 200.0),
+                                  const SizedBox(height: 16.0),
+                                  const ContentPlaceholder(
+                                    lineType: ContentLineType.twoLines,
+                                  ),
+                                ],
+                              )
+                          ),
+                        ),
+
+                      ),),
                       Container(
                         height: 60,
                         margin:
-                        EdgeInsets.only(left: 15.0, right: 15.0),
+                        const EdgeInsets.only(left: 15.0, right: 15.0),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [
                             GestureDetector(
                                 onTap: () {
-                                 Get.back();
+                                  //loadOrders();
+                                  widget.voidCallback();
                                 },
                                 child: Container(
-                                    child: Icon(
-                                      Icons.arrow_back,
-                                      color: ColorUtil.themeColor,
-                                      size: 30,
-                                    ))),
+                                    height: 50,
+                                    width: 50,
+                                    color: Colors.transparent,
+                                    alignment: Alignment.centerLeft,
+                                    child: const Icon(Icons.menu_rounded,color: Colors.grey,size: 32,)
+                                )
+                            ),
                             // SizedBox(
                             //   width: 5,
                             // ),
@@ -144,310 +202,332 @@ class _MYOrderDetailsState extends State<MYOrderDetails> {
                         ),
                       ),
                       Container(
-                      width: SizeConfig.screenWidth,
-                      height: 80,
-                      alignment: Alignment.centerLeft,
-                      clipBehavior: Clip.antiAlias,
-                          margin: EdgeInsets.only(left: 10.0,right: 10.0,),
-                          padding: EdgeInsets.only(left: 30),
-                          decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(10),
-                          image: DecorationImage(image: AssetImage('assets/images/landingPage/orderHistory.png'),fit: BoxFit.cover)
-                          ),
-                          child:  Text('My Orders',style: TextStyle(fontFamily: 'RB',fontSize: 18,color: ColorUtil.thWhite,letterSpacing: 0.1)),
+                        width: SizeConfig.screenWidth,
+                        height: 80,
+                        alignment: Alignment.centerLeft,
+                        clipBehavior: Clip.antiAlias,
+                        margin: const EdgeInsets.only(left: 10.0,right: 10.0,),
+                        padding: const EdgeInsets.only(left: 30),
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(10),
+                            image: const DecorationImage(image: AssetImage('assets/images/landingPage/orderHistory.png'),fit: BoxFit.cover)
+                        ),
+                        child:  Text('My Orders',style: TextStyle(fontFamily: 'RB',fontSize: 18,color: ColorUtil.thWhite,letterSpacing: 0.1)),
                       ),
-                      SizedBox(height:20,),
+                      const SizedBox(height:20,),
                       Container(
-                          margin: EdgeInsets.only(left: 10.0,),
+                          margin: const EdgeInsets.only(left: 10.0,right: 10),
+                          padding: const EdgeInsets.all(10),
                           alignment: Alignment.centerLeft,
-                          child: Text('Ongoing Orders',style:ts18(text1,fontfamily: 'RB',),)
-                      ),
-                      GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (ctx) =>OrderDeliveryDetails()));
-                        },
-                        child: Container(
-                          width: width,
-                          margin: EdgeInsets.only(left: 10.0,right: 10.0,top: 15),
-                          padding:const EdgeInsets.all(10.0),
-                           decoration: BoxDecoration( borderRadius:
-                            BorderRadius.circular(5.0),
-                            color: Colors.white,
+                          decoration: BoxDecoration(
+                              color: ColorUtil.primary,
+                              borderRadius: BorderRadius.circular(5)
                           ),
-                          child: Column(
-                            children: [
-                              Row(
+                          child: Text('Ongoing Orders',style:ts18(ColorUtil.themeBlack,fontfamily: 'RB',),)
+                      ),
+                      Obx(() =>  Visibility(
+                        visible: onGoingOrders.isNotEmpty,
+                        replacement: Container(
+                            margin: const EdgeInsets.only(top: 20,bottom: 20),
+                            alignment: Alignment.center,
+                            child: Text("No Orders...",style: TextStyle(fontFamily: 'MM',fontSize: 20,color: ColorUtil.themeColor),)
+                        ),
+                        child: ListView.builder(
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: onGoingOrders.length,
+                          shrinkWrap: true,
+                          itemBuilder: (ctx,i){
+                            return Container(
+                              width: width,
+                              margin: const EdgeInsets.only(left: 10.0,right: 10.0,top: 15),
+                              padding:const EdgeInsets.all(10.0),
+                              decoration: const BoxDecoration(
+                                // borderRadius: BorderRadius.circular(5.0),
+                                  color: Colors.white,
+                                  border: Border(
+                                      bottom: BorderSide(color: Colors.grey)
+                                  )
+                              ),
+                              child: Row(
                                 crossAxisAlignment:CrossAxisAlignment.center,
                                 mainAxisAlignment:MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Container(
-                                    height: 70,
-                                    width: 70,
-                                    clipBehavior:Clip.antiAlias,
-                                    alignment:Alignment.center,
-                                    decoration: BoxDecoration(
-                                        color:Color(0XFFFED2DF),
-                                        borderRadius:BorderRadius.circular(5)),
-                                    child: Image.asset('assets/images/foodimgs/CURRY-DOSA-GOAT.jpg',height: 70, fit: BoxFit.cover,  ),
-                                  ),
-                                  SizedBox(width: 20,),
-                                  Container(
-                                    child: Column(
-                                      crossAxisAlignment:CrossAxisAlignment.start,
-                                      mainAxisAlignment:MainAxisAlignment.center,
-                                      children: [
-                                        Text( 'Dossa Special', style: TextStyle(fontFamily:'RB',fontSize: 16,color: Colors.black,letterSpacing:  0.1),
-                                        ),
-                                        SizedBox(
-                                          height: 5,
-                                        ),
-                                        Text('Sankranti, Syed Alvi Rd ', style: TextStyle(fontFamily: 'RM',fontSize: 14,color: Colors.black, letterSpacing: 0.1),
-                                        ),
-                                        SizedBox(
-                                          height: 5,
-                                        ),
-                                        Text('99.00 ', style: TextStyle(fontFamily: 'RM',fontSize: 14,color: Colors.black, letterSpacing: 0.1),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  Spacer(),
                                   Column(
+                                    crossAxisAlignment:CrossAxisAlignment.start,
+                                    mainAxisAlignment:MainAxisAlignment.center,
+                                    mainAxisSize: MainAxisSize.min,
                                     children: [
-                                      Container(
-                                        child: Text("1X",style: TextStyle( fontFamily: 'RB',fontSize: 16,color:ColorUtil.thBlack,letterSpacing: 0.1),
-                                        ),
+                                      RichText(
+                                          text:  TextSpan(
+                                              text: "Order#:  ",
+                                              style: const TextStyle(fontFamily:'RR',fontSize: 15,color: Colors.black,letterSpacing:  0.1),
+                                              children: [
+                                                TextSpan(text: "${onGoingOrders[i]['OrderNumber']}", style: const TextStyle(fontFamily:'RB',fontSize: 16,color: Colors.black,letterSpacing:  0.1),),
+                                              ]
+                                          )
                                       ),
-                                      SizedBox(
-                                        height: 15,
+                                      const SizedBox(height: 5,),
+                                      RichText(
+                                          text:  TextSpan(
+                                              text: "Total Items:  ",
+                                              style: const TextStyle(fontFamily:'RR',fontSize: 15,color: Colors.black,letterSpacing:  0.1),
+                                              children: [
+                                                TextSpan(text: "${onGoingOrders[i]['TotalItems']}", style: const TextStyle(fontFamily:'RB',fontSize: 16,color: Colors.black,letterSpacing:  0.1),),
+                                              ]
+                                          )
                                       ),
-                                      Text('Cancel', style: TextStyle(fontFamily: 'RM',fontSize: 16,color: Colors.redAccent, letterSpacing: 0.1),
+                                      const SizedBox(height: 5,),
+                                      RichText(
+                                          text: TextSpan(
+                                              text: "Grand Total: ",
+                                              style: const TextStyle(fontFamily:'RR',fontSize: 15,color: Colors.black,letterSpacing:  0.1),
+                                              children: [
+                                                TextSpan(text: "${MyConstants.rupeeString} ${onGoingOrders[i]['GrandTotalAmount']}", style: const TextStyle(fontFamily:'RB',fontSize: 16,color: Colors.black,letterSpacing:  0.1),),
+                                              ]
+                                          )
                                       ),
                                     ],
-                                  )
-                                ],
-                              ),
-                              SizedBox(height: 15,),
-                              Container(
-                              width: SizeConfig.screenWidth,
-                              height: 1,
-                              decoration: BoxDecoration(
-                              border: Border.all(color: ColorUtil.grey1,style: BorderStyle.solid),
-                              ),
-                              ),
-                              SizedBox(height: 10,),
-                              Row(
-                                crossAxisAlignment:CrossAxisAlignment.center,
-                                mainAxisAlignment:MainAxisAlignment.spaceBetween,
+                                  ),
+                                  const Spacer(),
+                                  GestureDetector(
+                                    onTap: (){
+                                      Navigator.push(context, MaterialPageRoute(builder: (ctx) =>OrderDeliveryDetails(
+                                        orderId: onGoingOrders[i]['OrderId'],
+                                      )));
+                                    },
+                                    child: Container(
+                                      padding: const EdgeInsets.fromLTRB(25,15,25,15),
+                                      decoration: BoxDecoration(
+                                          color: ColorUtil.themeColor,
+                                          borderRadius: BorderRadius.circular(25)
+                                        // shape: BoxShape.circle
+                                      ),
+                                      child: Text(
+                                        'Track',
+                                        style: TextStyle(
+                                            fontFamily: 'RM',
+                                            fontSize: 14,
+                                            color: ColorUtil.primaryColor,
+                                            letterSpacing: 0.1),
+                                      ),
+                                    ),
+                                  ),
+                                  /*Column(
                                 children: [
                                   Container(
-                                      width: 70,
-                                  child: Image.asset('assets/images/landingPage/Take-Away.png',width: 49, fit: BoxFit.cover,  )),
-                                  SizedBox(width: 20,),
-                                  Container(
-                                    child: Column(
+                                    child: Text("1X",style: TextStyle( fontFamily: 'RB',fontSize: 16,color:ColorUtil.thBlack,letterSpacing: 0.1),
+                                    ),
+                                  ),
+                                  const SizedBox(
+                                    height: 15,
+                                  ),
+                                  const Text('Cancel', style: TextStyle(fontFamily: 'RM',fontSize: 16,color: Colors.redAccent, letterSpacing: 0.1),
+                                  ),
+                                ],
+                              )*/
+                                ],
+                              ),
+                            );
+                          },
+                        ),
+                      ),),
+
+                      const SizedBox(height:20,),
+                      Container(
+                          margin: const EdgeInsets.only(left: 10.0,right: 10),
+                          padding: const EdgeInsets.fromLTRB(10,5,10,5),
+                          alignment: Alignment.center,
+                          decoration: BoxDecoration(
+                            color: ColorUtil.primary,
+                            borderRadius: BorderRadius.circular(5)
+                          ),
+                          child: Row(
+                            children: [
+                              Text('Previous Orders',style:ts18(ColorUtil.themeBlack,fontfamily: 'RB',),),
+                              const Spacer(),
+                              GestureDetector(
+                                onTap: () async{
+                                  showDateRangePicker(
+                                      context: context,
+                                      firstDate: DateTime(2023),
+                                      lastDate: DateTime(2050)
+                                  ).then((value){
+                                    if(value!=null){
+                                      print("$value ${value.start} ${value.end}");
+                                      loadOrders(
+                                        fromDate: value.start,
+                                        toDate: value.end
+                                      );
+                                    }
+                                  });
+                                },
+                                child: Container(
+                                    height: 35,
+                                    width: 35,
+                                    color: Colors.transparent,
+                                    alignment: Alignment.center,
+                                    child: Icon(Icons.date_range_rounded,color: ColorUtil.themeBlack,)
+                                ),
+                              )
+                            ],
+                          )
+                      ),
+                      Obx(() =>  Visibility(
+                        visible: completedOrders.isNotEmpty,
+                        replacement: Container(
+                            margin: const EdgeInsets.only(top: 50),
+                            alignment: Alignment.center,
+                            child: Text("No Orders...",style: TextStyle(fontFamily: 'MM',fontSize: 20,color: ColorUtil.themeColor),)
+                        ),
+                        child: ListView.builder(
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: completedOrders.length,
+                          shrinkWrap: true,
+                          itemBuilder: (ctx,i){
+                            return GestureDetector(
+                              onTap: () {
+                                // Navigator.push(context, MaterialPageRoute(builder: (ctx) =>const OrderDeliveryDetails()));
+                              },
+                              child: Container(
+                                width: width,
+                                margin: const EdgeInsets.only(left: 10.0,right: 10.0,top: 15),
+                                padding:const EdgeInsets.all(10.0),
+                                decoration: const BoxDecoration(
+                                  // borderRadius: BorderRadius.circular(5.0),
+                                    color: Colors.white,
+                                    border: Border(
+                                        bottom: BorderSide(color: Colors.grey)
+                                    )
+                                ),
+                                child: Row(
+                                  crossAxisAlignment:CrossAxisAlignment.center,
+                                  mainAxisAlignment:MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Column(
                                       crossAxisAlignment:CrossAxisAlignment.start,
                                       mainAxisAlignment:MainAxisAlignment.center,
+                                      mainAxisSize: MainAxisSize.min,
                                       children: [
-                                        Text( 'Your order is on the way', style: TextStyle(fontFamily:'RB',fontSize: 16,color: Colors.black,letterSpacing:  0.1),
+                                        Text("${completedOrders[i]['OrderDate']}",
+                                          style: const TextStyle(fontFamily:'RB',fontSize: 16,color: Colors.black,letterSpacing:  0.1),
                                         ),
-                                        SizedBox(
-                                          height: 5,
+                                        const SizedBox(height: 5,),
+                                        RichText(
+                                            text:  TextSpan(
+                                                text: "Order#:  ",
+                                                style: const TextStyle(fontFamily:'RR',fontSize: 15,color: Colors.black,letterSpacing:  0.1),
+                                                children: [
+                                                  TextSpan(text: "${completedOrders[i]['OrderNumber']}", style: const TextStyle(fontFamily:'RB',fontSize: 16,color: Colors.black,letterSpacing:  0.1),),
+                                                ]
+                                            )
                                         ),
-                                        Text('Will arrive in 20 mins ', style: TextStyle(fontFamily: 'RR',fontSize: 14,color:ColorUtil.grey2, letterSpacing: 0.1),
+                                        const SizedBox(height: 5,),
+                                        RichText(
+                                            text:  TextSpan(
+                                                text: "Total Items:  ",
+                                                style: const TextStyle(fontFamily:'RR',fontSize: 15,color: Colors.black,letterSpacing:  0.1),
+                                                children: [
+                                                  TextSpan(text: "${completedOrders[i]['TotalItems']}", style: const TextStyle(fontFamily:'RB',fontSize: 16,color: Colors.black,letterSpacing:  0.1),),
+                                                ]
+                                            )
+                                        ),
+                                        const SizedBox(height: 5,),
+                                        RichText(
+                                            text: TextSpan(
+                                                text: "Grand Total: ",
+                                                style: const TextStyle(fontFamily:'RR',fontSize: 15,color: Colors.black,letterSpacing:  0.1),
+                                                children: [
+                                                  TextSpan(text: "${MyConstants.rupeeString} ${completedOrders[i]['GrandTotalAmount']}", style: const TextStyle(fontFamily:'RB',fontSize: 16,color: Colors.black,letterSpacing:  0.1),),
+                                                ]
+                                            )
                                         ),
                                       ],
                                     ),
-                                  ),
-                                  Spacer(),
-                                  Container(
-                                    padding: EdgeInsets.fromLTRB(25,15,25,15),
-                                    decoration: BoxDecoration(
-                                        color: ColorUtil.themeColor,
-                                        borderRadius: BorderRadius.circular(25)
-                                      // shape: BoxShape.circle
-                                    ),
-                                    child: Text(
-                                      'Track',
-                                      style: TextStyle(
-                                          fontFamily: 'RM',
-                                          fontSize: 14,
-                                          color: ColorUtil.primaryColor,
-                                          letterSpacing: 0.1),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      SizedBox(height:20,),
-                      Container(
-                          margin: EdgeInsets.only(left: 10.0,),
-                          alignment: Alignment.centerLeft,
-                          child: Text('Previous Orders',style:ts18(text1,fontfamily: 'RB',),)
-                      ),
-                      Align(
-                        alignment: Alignment.center,
-                        child: InnerShadowTBContainer(
-                          height: SizeConfig.screenHeight! - 124,
-                          width: width ,
-                          child: ListView.builder(
-                              physics: NeverScrollableScrollPhysics(),
-                              itemCount: FavItems.length,
-                              itemBuilder: (ctx, i) {
-                                return Column(
-                                  children: [
-                                    // SizedBox(height: 20,),
+                                    const Spacer(),
                                     GestureDetector(
-                                      onTap: () {
-                                        Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                                builder: (ctx) =>
-                                                    OrderDeliveryDetails()));
+                                      onTap: (){
+                                        Navigator.push(context, MaterialPageRoute(builder: (ctx) =>OrderDeliveryDetails(
+                                          orderId: completedOrders[i]['OrderId'],
+                                        )));
                                       },
                                       child: Container(
-                                        width: width,
-                                        margin: EdgeInsets.only(
-                                            left: 10.0,
-                                            right: 10.0,
-                                            top: 15),
-                                        padding:
-                                        const EdgeInsets.all(10.0),
+                                        padding: const EdgeInsets.fromLTRB(25,15,25,15),
                                         decoration: BoxDecoration(
-                                          borderRadius:
-                                          BorderRadius.circular(
-                                              5.0),
-                                          color: Colors.white,
-                                          // boxShadow: [
-                                          //   BoxShadow(
-                                          //     color: Color(0xFFE1E7F3)
-                                          //         .withOpacity(0.9),
-                                          //     blurRadius:
-                                          //         20.0, // soften the shadow
-                                          //     spreadRadius:
-                                          //         0.0, //extend the shadow
-                                          //     offset: Offset(
-                                          //       0.0, // Move to right 10  horizontally
-                                          //       10.0, // Move to bottom 10 Vertically
-                                          //     ),
-                                          //   )
-                                          // ],
-                                          // border: Border.all(color:text1.withOpacity(0.2),),
+                                            color: ColorUtil.themeColor,
+                                            borderRadius: BorderRadius.circular(25)
+                                          // shape: BoxShape.circle
                                         ),
-                                        child: Row(
-                                          crossAxisAlignment:CrossAxisAlignment.center,
-                                          // mainAxisAlignment:MainAxisAlignment .spaceBetween,
-                                          children: [
-                                            Container(
-                                              height: 70,
-                                              width: 70,
-                                              clipBehavior:
-                                              Clip.antiAlias,
-                                              alignment:
-                                              Alignment.center,
-                                              decoration: BoxDecoration(
-                                                  color:
-                                                  Color(0XFFFED2DF),
-                                                  borderRadius:
-                                                  BorderRadius.circular(5)),
-                                              child: Image.asset(FavItems[i]['FavImg'],height: 70, fit: BoxFit.cover,  ),
-                                            ),
-                                            SizedBox(width: 30,),
-                                            Container(
-                                              child: Column(
-                                                crossAxisAlignment:CrossAxisAlignment.start,
-                                                mainAxisAlignment:MainAxisAlignment.center,
-                                                children: [
-                                                  Text(
-                                                    FavItems[i]['FavItemName'], style: TextStyle(fontFamily:'RB',fontSize: 16,color: Colors.black,letterSpacing:  0.1),
-                                                  ),
-                                                  SizedBox(
-                                                    height: 10,
-                                                  ),
-                                                  Text(
-                                                    FavItems[i]['FavSubtitle'], style: TextStyle(fontFamily: 'RR',fontSize: 14,color:ColorUtil.grey2, letterSpacing: 0.1),
-                                                  ),
-
-                                                ],
-                                              ),
-                                            ),
-                                            Spacer(),
-                                            Column(
-                                              children: [
-                                                Container(
-                                                  child: Text(FavItems[i]['Rate'],style: TextStyle( fontFamily: 'RB',fontSize: 16,color:ColorUtil.thBlack,letterSpacing: 0.1),
-                                                  ),
-                                                ),
-                                                SizedBox(
-                                                  height: 10,
-                                                ),
-                                                Text(
-                                                  FavItems[i]['Reorder'], style: TextStyle(fontFamily:'RM',fontSize: 16,color: ColorUtil.primaryColor,letterSpacing:  0.1),
-                                                ),
-                                              ],
-                                            )
-                                          ],
+                                        child: Text(
+                                          'View',
+                                          style: TextStyle(
+                                              fontFamily: 'RM',
+                                              fontSize: 16,
+                                              color: ColorUtil.primaryColor,
+                                              letterSpacing: 0.1),
                                         ),
                                       ),
                                     ),
+                                    /*Column(
+                                  children: [
+                                    Container(
+                                      child: Text("1X",style: TextStyle( fontFamily: 'RB',fontSize: 16,color:ColorUtil.thBlack,letterSpacing: 0.1),
+                                      ),
+                                    ),
+                                    const SizedBox(
+                                      height: 15,
+                                    ),
+                                    const Text('Cancel', style: TextStyle(fontFamily: 'RM',fontSize: 16,color: Colors.redAccent, letterSpacing: 0.1),
+                                    ),
                                   ],
-                                );
-                              }),
+                                )*/
+                                  ],
+                                ),
+                              ),
+                            );
+                          },
                         ),
-                      ),
-                      SizedBox(
+                      ),),
+                      const SizedBox(
                         height: 90,
                       ),
                     ],
                   ),
                 ),
+
+
               ),
-            ),
-            Positioned(bottom: -15, child: BottomNavi()),
-            Align(
-              alignment: Alignment.bottomCenter,
-              child: GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => CartPage()),
-                    );
-                  },
-                  child: Container(
-                      width: 60,
-                      height: 60,
-                      margin: EdgeInsets.only(bottom: 15),
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: ColorUtil.themeColor,
-                        boxShadow: [
-                          BoxShadow(
-                            color:
-                            ColorUtil.themeColor.withOpacity(0.3),
-                            blurRadius: 25.0, // soften the shadow
-                            spreadRadius: 5.0, //extend the shadow
-                            offset: Offset(
-                              0.0, // Move to right 10  horizontally
-                              10.0, // Move to bottom 10 Vertically
-                            ),
-                          )
-                        ],
-                      ),
-                      child: Icon(
-                        Icons.shopping_cart,
-                        color: Color(0xffffffff),
-                        size: 30,
-                      ))),
             ),
           ],
         ));
   }
+
+
+  void loadOrders({DateTime? fromDate,DateTime? toDate}) async{
+    isLoading.value=true;
+    onGoingOrders.clear();
+    completedOrders.clear();
+    List<ParameterModel> params= await getParameterEssential();
+    params.add(ParameterModel(Key: "SpName", Type: "String", Value: "RB_Billing_GetCustomerBillTrackOrderDetail"));
+    params.add(ParameterModel(Key: "FromDate", Type: "String", Value: DateFormat(MyConstants.dbDateFormat).format(fromDate??DateTime.now())));
+    params.add(ParameterModel(Key: "ToDate", Type: "String", Value: DateFormat(MyConstants.dbDateFormat).format(toDate??DateTime.now())));
+    ApiManager.GetInvoke(params,needInputJson: true).then((value){
+      debugPrint("$value");
+      //isLoading.value=false;
+      Timer(const Duration(seconds: 1), () {
+        isLoading.value=false;
+      });
+      if(value[0]){
+        var response=json.decode(value[1]);
+        List table=response['Table'];
+        onGoingOrders.value=table.where((element) => element['IsTrackOrder']).toList();
+        completedOrders.value=table.where((element) => !element['IsTrackOrder']).toList();
+      }
+      else{
+      }
+    });
+  }
+
+
 }
 
 addRemoveBtn(Widget icon) {
@@ -455,7 +535,7 @@ addRemoveBtn(Widget icon) {
     height: 25,
     width: 25,
     decoration: BoxDecoration(
-        color: Color(0xffF5F4F2), borderRadius: BorderRadius.circular(5)),
+        color: const Color(0xffF5F4F2), borderRadius: BorderRadius.circular(5)),
     child: Center(
       child: icon,
     ),
@@ -481,7 +561,7 @@ class CustomSearchDelegate extends SearchDelegate {
         onPressed: () {
           query = '';
         },
-        icon: Icon(Icons.clear),
+        icon: const Icon(Icons.clear),
       ),
     ];
   }
@@ -493,7 +573,7 @@ class CustomSearchDelegate extends SearchDelegate {
       onPressed: () {
         close(context, null);
       },
-      icon: Icon(Icons.arrow_back),
+      icon: const Icon(Icons.arrow_back),
     );
   }
 
@@ -538,3 +618,6 @@ class CustomSearchDelegate extends SearchDelegate {
     );
   }
 }
+
+
+

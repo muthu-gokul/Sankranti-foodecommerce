@@ -1,28 +1,25 @@
 import 'dart:async';
 
 import 'package:carousel_slider/carousel_slider.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:foodecommerce/pages/HomePage/hotelCategory.dart';
-import 'package:foodecommerce/pages/ItemViewAll/viewProductDetail.dart';
-import 'package:foodecommerce/utils/colorUtil.dart';
-import 'package:foodecommerce/utils/utils.dart';
+import 'package:foodecommerce/notifier/Billing/outletDetail.dart';
+import '../../notifier/Billing/configuration.dart';
+import '../../notifier/Billing/otherServices/takeAwayNotifier.dart';
+import '/notifier/Billing/billingController.dart';
+import '/pages/ItemViewAll/viewProductDetail.dart';
+import '/utils/colorUtil.dart';
+import '/utils/utils.dart';
 import 'package:get/get.dart';
-import 'package:provider/provider.dart';
-
-import '../../notifier/themeNotifier.dart';
 import '../../styles/constants.dart';
-import '../../styles/style.dart';
 import '../../utils/constants.dart';
 import '../../utils/sizeLocal.dart';
 import '../../widgets/bottomPainter.dart';
 import '../../widgets/calculation.dart';
 import '../../widgets/companySettingsTextField.dart';
 import '../../widgets/innerShadowTBContainer.dart';
-import '../ItemViewAll/ViewAll.dart';
 import '../filter/FilterItems.dart';
 import 'Cartpage.dart';
+import 'package:basic_utils/basic_utils.dart' as utils;
 
 class HomePage extends StatefulWidget {
   VoidCallback voidCallback;
@@ -44,187 +41,39 @@ class _HomePageState extends State<HomePage> {
   int selectAddRemove = -1;
   var _current = 0.obs;
   final CarouselController _controller = CarouselController();
-  List<dynamic> FavItems = [
-    {
-      "FavImg": "assets/images/foodimgs/Accompanied-with-Steamed-Rice-Dosa-or-Roti.jpg",
-      "FavItemName": "Steamed-Rice & Roti",
-      "Rate": "250.00",
-      "FavVegNon": "Non-Veg",
-      "FavColorCatg": 0xffFF0022,
-      "FavSubtitle": "Comments",
-      "IsAdd":false,
-      "Qty":0,
-    },
-    {
-      "FavImg": "assets/images/foodimgs/chicken.jpg",
-      "FavItemName": "Chicken",
-      "Rate": "59.00",
-      "FavVegNon": "Non-veg",
-      "FavColorCatg": 0xffFF0022,
-      "FavSubtitle": "Comments",
-      "IsAdd":false,
-      "Qty":0,
-    },
-    {
-      "FavImg": "assets/images/foodimgs/STRAWBERRY-LASSI.jpg",
-      "FavItemName": "STRAWBERRY-LASSI",
-      "Rate": "299.00",
-      "FavVegNon": "Veg",
-      "FavColorCatg": 0xff007F11,
-      "FavSubtitle": "Comments",
-      "IsAdd":false,
-      "Qty":0,
-    },
-    {
-      "FavImg": "assets/images/foodimgs/cold-press-juice-pineapple.jpg",
-      "FavItemName": "Fresh Juice",
-      "Rate": "150.00",
-      "FavVegNon": "Veg",
-      "FavColorCatg": 0xff007F11,
-      "FavSubtitle": "Comments",
-      "IsAdd":false,
-      "Qty":0,
-    },
-    {
-      "FavImg": "assets/images/foodimgs/sweet.jpg",
-      "FavItemName": "Sweete",
-      "Rate": "99.00",
-      "FavVegNon": "Veg",
-      "FavColorCatg": 0xff007F11,
-      "FavSubtitle": "Comments",
-      "IsAdd":false,
-      "Qty":0,
-    },
-    {
-      "FavImg": "assets/images/foodimgs/biriyani.webp",
-      "FavItemName": "Chicken Biriyani",
-      "Rate": "140.00",
-      "FavVegNon": "Non-Veg",
-      "FavColorCatg": 0xffFF0022,
-      "FavSubtitle": "Comments",
-      "IsAdd":false,
-      "Qty":0,
-    },
-    {
-      "FavImg": "assets/images/foodimgs/ice-cream-pistachio.jpg",
-      "FavItemName": "Ice-cream Pistachio",
-      "Rate": "170.00",
-      "FavVegNon": "Veg",
-      "FavColorCatg": 0xff007F11,
-      "FavSubtitle": "Comments",
-      "IsAdd":false,
-      "Qty":0,
-    },
-    {
-      "FavImg": "assets/images/foodimgs/dessert-gulab-jamoon-hot.jpg",
-      "FavItemName": "Gulab Jamoon hot",
-      "Rate": "80.00",
-      "FavVegNon": "Veg",
-      "FavColorCatg": 0xff007F11,
-      "FavSubtitle": "Comments",
-      "IsAdd":false,
-      "Qty":0,
-    },
-    {
-      "FavImg": "assets/images/foodimgs/sankranti-special-boneless-chicken-biriyani.jpg",
-      "FavItemName": "Chicken Biriyani",
-      "Rate": "199.00",
-      "FavVegNon": "Non-veg",
-      "FavColorCatg": 0xffFF0022,
-      "FavSubtitle": "Meals",
-      "IsAdd":false,
-      "Qty":0,
-    },
-    {
-      "FavImg": "assets/images/foodimgs/Paneer-Pepper-Fry.jpg",
-      "FavItemName": "Panner Pepper",
-      "Rate": "250.00",
-      "FavVegNon": "Veg",
-      "FavColorCatg": 0xff007F11,
-      "FavSubtitle": "Comments",
-      "IsAdd":false,
-      "Qty":0,
-    },
-    {
-      "FavImg": "assets/images/foodimgs/Tiffen.png",
-      "FavItemName": "Mini Tiffen",
-      "Rate": "130.00",
-      "FavVegNon": "Veg",
-      "FavColorCatg": 0xff007F11,
-      "FavSubtitle": "Morning Special",
-      "IsAdd":false,
-      "Qty":0,
-    },
-    {
-      "FavImg": "assets/images/foodimgs/CURRY-DOSA-GOAT.jpg",
-      "FavItemName": "CURRY DOSA GOAT",
-      "Rate": "99.00",
-      "FavVegNon": "Veg",
-      "FavColorCatg": 0xff007F11,
-      "FavSubtitle": "Evening Special",
-      "IsAdd":false,
-      "Qty":0,
-    },
-  ];
-  List<dynamic> TrendingFood = [
-    {
-      "Img": "assets/images/landingPage/Slide-Banner.png",
-      "Rate": "Upto flat 50% Off",
-      "btn": "Order now",
-    },
-    {
-      "Img": "assets/images/landingPage/Slide-Banner.png",
-      "Rate": "Upto flat 60% Off",
-      "btn": "Order now",
-    },
-    {
-      "Img": "assets/images/landingPage/Slide-Banner.png",
-      "Rate": "Upto flat 70% Off",
-      "btn": "Order now",
-    },
-  ];
-  List<dynamic> Category = [
-    {
-      "CatgImg": "assets/images/landingPage/catg-1.png",
-      "CatgName": "Non-Veg",
-      "ColorCatg": 0xffFF7D7D
-    },
-    {
-      "CatgImg": "assets/images/foodimgs/cat-5.png",
-      "CatgName": "Veg",
-      "ColorCatg": 0xffD1B63F
-    },
-    {
-      "CatgImg": "assets/images/foodimgs/cat-2.png",
-      "CatgName": "Dessert",
-      "ColorCatg": 0xffF99B7D
-    },
-    {
-      "CatgImg": "assets/images/foodimgs/cat-7.png",
-      "CatgName": "Sweets",
-      "ColorCatg": 0xffA67EC1
-    },
-    {
-      "CatgImg": "assets/images/foodimgs/cat-3.png",
-      "CatgName": "Juice",
-      "ColorCatg": 0xff8BACAA
-    },
-  ];
+
   var animStart = false.obs;
   var showSplash = true.obs;
   var isItemAdd = false.obs;
-  int totalItem=0;
-  double totalAmt=0.0;
-  void totalCalc(){
-    totalItem=FavItems.where((element) => element['IsAdd']).toList().length;
-    totalAmt=0.0;
-    FavItems.where((element) => element['IsAdd']).forEach((element) {
-      totalAmt=Calculation().add(totalAmt, Calculation().mul(element['Rate'], element['Qty']));
-    });
+
+
+  int getCatBgColor(int index){
+    int color=0xffFF7D7D;
+    int totalLen=5;
+    if(index%totalLen==0){
+      color=0xffFF7D7D;
+    }
+    else if(index%totalLen==1){
+      color=0xffD1B63F;
+    }
+    else if(index%totalLen==2){
+      color=0xffF99B7D;
+    }
+    else if(index%totalLen==3){
+      color=0xffA67EC1;
+    }
+    else if(index%totalLen==4){
+      color=0xff8BACAA;
+    }
+    return color;
   }
+
   @override
   void initState() {
     initAnim();
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      TakeAwayAddNewHandler();
+    });
     super.initState();
   }
 
@@ -257,19 +106,20 @@ class _HomePageState extends State<HomePage> {
                     return <Widget>[
                       SliverAppBar(
                         backgroundColor: ColorUtil.branchClr,
-                        toolbarHeight: 70,
+                        toolbarHeight: 0,
                         //floating: false,
                        // snap: false,
                         pinned: true,
-                        expandedHeight: 180.0,
+                        expandedHeight: 120.0,
                         automaticallyImplyLeading: false,
                         forceElevated: innerBoxIsScrolled,
                         centerTitle: false,
                         flexibleSpace: FlexibleSpaceBar(
                           expandedTitleScale: 1,
                           centerTitle: false,
-                          titlePadding: const EdgeInsets.fromLTRB(0,12,0,12),
-                          title: Row(
+                         // titlePadding: const EdgeInsets.fromLTRB(0,12,0,12),
+                          titlePadding: const EdgeInsets.fromLTRB(0,0,0,0),
+                          /*title: Row(
                             children: [
                               Container(
                                   padding: const EdgeInsets.only(left: 10.0, right: 10.0),
@@ -296,7 +146,7 @@ class _HomePageState extends State<HomePage> {
                                 ),
                               )
                             ],
-                          ),
+                          ),*/
                           background:   Container(
                             width: width,
                             child: Stack(
@@ -341,7 +191,8 @@ class _HomePageState extends State<HomePage> {
                                                 widget.voidCallback();
                                                 //  Navigator.push(context, MaterialPageRoute(builder: (ctx)=>AddressHomePage()));
                                               },
-                                              child:Image.asset('assets/images/landingPage/menuBar.png',))
+                                              child:Image.asset('assets/images/landingPage/menuBar.png',)
+                                          )
                                         ],
                                       ),
                                     ),
@@ -386,75 +237,131 @@ class _HomePageState extends State<HomePage> {
                         SizedBox(
                           height: 10,
                         ),
-                        Container(
+                        /*Container(
                             width: SizeConfig.screenWidth,
                             height: 130,
                             //  padding: EdgeInsets.only(bottom: 10),
                             alignment: Alignment.centerLeft,
-                            child: ListView.builder(
+                            child: Obx(() => ListView.builder(
                               physics: BouncingScrollPhysics(),
                               scrollDirection: Axis.horizontal,
-                              itemCount: Category.length,
+                              itemCount: filtermainCategory.length,
                               shrinkWrap: true,
                               itemBuilder: (ctx, i) {
                                 return GestureDetector(
                                   onTap: () {
-                                    setState(() {
-                                      selectTopSale = i;
-                                    });
+                                    print("${filtermainCategory[i].toJson()}");
+                                    updateMainCategory(i);
+                                    Navigator.push(context, MaterialPageRoute(builder: (context) => ViewProductDetails()),);
                                   },
-                                  child: GestureDetector(
-                                    onTap: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (context) =>
-                                                ViewProductDetails()),
-                                      );
-                                    },
-                                    child: AnimatedContainer(
-                                      duration: Duration(milliseconds: 400),
-                                      curve: Curves.easeIn,
-                                      decoration:BoxDecoration(
-                                        borderRadius:
-                                        BorderRadius.circular(5.0),
-                                        color:Color(Category[i]
-                                        ['ColorCatg']) ,
-                                      ),
-                                      margin: EdgeInsets.only(
-                                          right: 10,
-                                          top: 5,
-                                          bottom: 5,
-                                          left: i == 0 ? 15 : 0),
-                                      width: SizeConfig.screenWidth! * 0.33,
-                                      clipBehavior: Clip.antiAlias,
-                                      child: Column(
+                                  child: AnimatedContainer(
+                                    duration: Duration(milliseconds: 400),
+                                    curve: Curves.easeIn,
+                                    decoration:BoxDecoration(
+                                      borderRadius:
+                                      BorderRadius.circular(5.0),
+                                      color:Color(getCatBgColor(i)) ,
+                                    ),
+                                    margin: EdgeInsets.only(
+                                        right: 10,
+                                        top: 5,
+                                        bottom: 5,
+                                        left: i == 0 ? 15 : 0),
+                                    width: SizeConfig.screenWidth! * 0.33,
+                                    clipBehavior: Clip.antiAlias,
+                                    child: Column(
                                       mainAxisSize: MainAxisSize.min,
                                       mainAxisAlignment: MainAxisAlignment.center,
-                                        children: [
-                                          Image.asset(
-                                            Category[i]['CatgImg'],
-                                            fit: BoxFit.cover,width: 70,
-                                          ),
-                                          SizedBox(height: 5,),
-                                          Text(
-                                            Category[i]['CatgName'],
-                                            style: TextStyle(
-                                                color: ColorUtil.thWhite,
-                                                fontSize: 14,
-                                                fontFamily: 'RB'),
-                                          ),
-                                        ],
-                                      ),
+                                      children: [
+                                        Image.network(GetImageUrl(1,filtermainCategory[i].imgPath),
+                                          fit: BoxFit.cover,
+                                          height: 50,
+                                          errorBuilder: (context,er,s){
+                                            return Image.network(GetImageUrl(1,"CategoryItems/DefaultCategory.png"),
+                                              fit: BoxFit.fill,
+                                              errorBuilder: (context,er,s){
+                                                return Container();
+                                              },
+                                            );
+                                          },
+                                        ),
+                                        *//*Image.asset(
+                                          Category[i]['CatgImg'],
+                                          fit: BoxFit.cover,width: 70,
+                                        ),*//*
+                                        SizedBox(height: 10,),
+                                        Text("${utils.StringUtils.capitalize(filtermainCategory[i].MainCategoryName??"")}",
+                                          style: TextStyle(color: ColorUtil.thWhite, fontSize: 14, fontFamily: 'RB'),
+                                          textAlign: TextAlign.center,
+                                        ),
+                                      ],
                                     ),
                                   ),
                                 );
                               },
-                            )),
+                            ))
+                        ),*/
+                        Container(
+                            width: SizeConfig.screenWidth,
+                           // height: 130,
+                            padding: EdgeInsets.only(left: 10,right: 10),
+                            alignment: Alignment.centerLeft,
+                            child: SingleChildScrollView(
+                              child: Obx(() => Wrap(
+                                spacing: 10,
+                                runSpacing: 10,
+                                children: filtermainCategory.asMap().map((key, value)=>MapEntry(key,
+                                  GestureDetector(
+                                  onTap: () {
+                                    //print("${filtermainCategory[i].toJson()}");
+                                    updateMainCategory(key);
+                                    Navigator.push(context, MaterialPageRoute(builder: (context) => ViewProductDetails()),);
+                                  },
+                                  child: AnimatedContainer(
+                                    duration: const Duration(milliseconds: 400),
+                                    curve: Curves.easeIn,
+                                    decoration:BoxDecoration(
+                                      borderRadius: BorderRadius.circular(5.0),
+                                      color:Color(getCatBgColor(key)) ,
+                                    ),
+                                    margin: EdgeInsets.only(right: 0, top: 0, bottom: 0, left: 0),
+                                    padding: EdgeInsets.only(top: 10,bottom: 10,left: 5,right: 5),
+                                    width: (SizeConfig.screenWidth!-40) * 0.33,
+                                    clipBehavior: Clip.antiAlias,
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        Image.network(GetImageUrl(1,value.imgPath),
+                                          fit: BoxFit.cover,
+                                          height: 50,
+                                          errorBuilder: (context,er,s){
+                                            return Image.network(GetImageUrl(1,"CategoryItems/DefaultCategory.png"),
+                                              fit: BoxFit.fill,
+                                              errorBuilder: (context,er,s){
+                                                return Container();
+                                              },
+                                            );
+                                          },
+                                        ),
+                                        const SizedBox(height: 10,),
+                                        Text("${utils.StringUtils.capitalize(value.MainCategoryName??"")}",
+                                          style: TextStyle(color: ColorUtil.thWhite, fontSize: 14, fontFamily: 'RB'),
+                                          textAlign: TextAlign.center,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                )
+                                )).values.toList(),
+                              )
+                              ),
+                            )
+                        ),
                         const SizedBox(
                           height: 10,
                         ),
-                        const Padding(
+                       /* const Padding(
                           padding: EdgeInsets.only(left: 15.0, right: 15.0),
                           child: Text(
                             'Restaurants Menu',
@@ -677,14 +584,15 @@ class _HomePageState extends State<HomePage> {
                             }),
                         const SizedBox(
                           height: 80,
-                        )
+                        )*/
                       ],
                     ),
                   ),
               ),
             ),
           ),
-          Obx(() => AnimatedPositioned(
+
+         /* Obx(() => AnimatedPositioned(
             duration: MyConstants.animeDuration,
             bottom: isItemAdd.value?0:-100,
             curve: Curves.easeIn,
@@ -798,17 +706,13 @@ class _HomePageState extends State<HomePage> {
                         ],
                       )),
                 )),
-          ),),
-
-          Obx(() => Visibility(
+          ),),*/
+          /*Obx(() => Visibility(
               visible: showSplash.value,
               child: Positioned(
                 top: 0,
-                //duration: const Duration(milliseconds: 300),
-               // top: animStart.value ? -SizeConfig.screenHeight! : 0,
                 child: Opacity(
-                  opacity:/* animStart.value ? 0 : */1,
-                 // duration: const Duration(milliseconds: 500),
+                  opacity:1,
                   child: Container(
                     height: SizeConfig.screenHeight,
                     width: SizeConfig.screenWidth,
@@ -839,7 +743,7 @@ class _HomePageState extends State<HomePage> {
                     ),
                   ),
                 ),
-              )))
+              )))*/
         ],
       ),
     );

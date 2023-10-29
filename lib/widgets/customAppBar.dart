@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import '../styles/constants.dart';
 import '../styles/style.dart';
+import '../utils/colorUtil.dart';
 
 class CustomAppBar extends StatelessWidget {
   String title;
@@ -32,3 +33,30 @@ class CustomAppBar extends StatelessWidget {
     );
   }
 }
+
+class ArrowBack extends StatelessWidget {
+  final VoidCallback onTap;
+  const ArrowBack({super.key,required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child:  Container(
+        height: 35,
+        width: 35,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+            color: const Color(0xffEFF1F8),
+            borderRadius: BorderRadius.circular(5),
+            border: Border.all(color: const Color(0xffD4D5D7))),
+        child: Icon(
+          Icons.arrow_back_ios_sharp,
+          color: ColorUtil.themeColor,
+          size: 20,
+        ),
+      ),
+    );
+  }
+}
+

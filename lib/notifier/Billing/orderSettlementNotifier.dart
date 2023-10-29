@@ -6,6 +6,7 @@ import 'package:math_expressions/math_expressions.dart';
 import 'package:provider/provider.dart';
 import '../../Popup/alertDialog.dart';
 import '../../api/sp.dart';
+import '../../pages/navHomeScreen.dart';
 import '../../utils/constants.dart';
 import '../../widgets/calculation.dart';
 import '../../api/ApiManager.dart';
@@ -527,4 +528,33 @@ bool IsBillRaised() {
     return true;
   }
   return false;
+}
+
+
+void PlaceOrder(VoidCallback onSuccess) async{
+  c_orderDetail.value!.customerId=customerId;
+  List<ParameterModel> params= await getParameterEssential(needUUID: true);
+  params.add(ParameterModel(Key: "SpName", Type: "String", Value: "RB_Billing_TabServiceCustomerPostPaidDetail_Mobile"));
+  params.add(ParameterModel(Key: "BalanceToPay", Type: "String", Value: HasOutletRoundOff()?c_orderDetail.value!.grandTotalAmount!.round():c_orderDetail.value!.grandTotalAmount));
+  params.add(ParameterModel(Key: "IsIncludeWallet", Type: "String", Value: false));
+  params.add(ParameterModel(Key: "WalletAmount", Type: "String", Value: 0));
+  params.add(ParameterModel(Key: "CustomerCouponCode", Type: "String", Value: ""));
+  params.add(ParameterModel(Key: "TabServiceTypeId", Type: "String", Value: 2));
+  params.addAll(c_orderDetail.value!.insertKotParameters());
+  ApiManager.GetInvoke(params,needInputJson: true).then((value){
+    debugPrint("$value");
+    if(value[0]){
+      var response=json.decode(value[1]);
+      c_orderDetail.value!.productList!.clear();
+      c_orderDetail.refresh();
+      setUUID(kotUUID);
+      kotClick.value=false;
+      TakeAwayAddNewHandler();
+      onSuccess();
+
+    }
+    else{
+      kotClick.value=false;
+    }
+  });
 }

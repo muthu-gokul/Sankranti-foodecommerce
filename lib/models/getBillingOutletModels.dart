@@ -256,15 +256,17 @@ class MainCategoryTable4{
   int? MainCategory;
   String? MainCategoryName;
   String imgPath;
-  MainCategoryTable4({this.MenuId,this.MainCategory,this.MainCategoryName,this.imgPath="CategoryItems/DefaultCategory.png"});
+  int totalProducts;
+  MainCategoryTable4({this.MenuId,this.MainCategory,this.MainCategoryName,this.imgPath="CategoryItems/DefaultCategory.png",this.totalProducts=0});
 
   factory MainCategoryTable4.fromJson(Map<dynamic, dynamic> json) {
     return new MainCategoryTable4(
 
-        MenuId: json['MenuId'],
-        MainCategory: json['MainCategory'],
-        MainCategoryName: json['MainCategoryName'],
-        imgPath: json['ProductCategoryLogo']
+      MenuId: json['MenuId'],
+      MainCategory: json['MainCategory'],
+      MainCategoryName: json['MainCategoryName'],
+      imgPath: json['ProductCategoryLogo'],
+      totalProducts: json['TotalProducts']??0,
     );
   }
 
@@ -291,7 +293,8 @@ class SubCategory{
   String? ProductCategoryName;
   int? CategoryOrder;
   int? MenuId;
-  SubCategory({this.ProductCategoryId,this.ProductCategoryName,this.ParentProductCategoryId,this.CategoryOrder,this.MenuId});
+  int totalProducts;
+  SubCategory({this.ProductCategoryId,this.ProductCategoryName,this.ParentProductCategoryId,this.CategoryOrder,this.MenuId,this.totalProducts=0});
 
   factory SubCategory.fromJson(Map<dynamic, dynamic> json) {
     return new SubCategory(
@@ -300,6 +303,7 @@ class SubCategory{
       ParentProductCategoryId: json['ParentProductCategoryId'],
       CategoryOrder:json['CategoryOrder'],
       MenuId:json['MenuId'],
+      totalProducts:json['TotalProducts']??0,
     );
   }
 
@@ -315,6 +319,7 @@ class SubCategory{
   }
 
 }
+
 
 class ProductDetails{
 

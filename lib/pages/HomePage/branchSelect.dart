@@ -4,6 +4,8 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:foodecommerce/notifier/Billing/configuration.dart';
+import 'package:foodecommerce/notifier/utils.dart';
 import 'package:foodecommerce/pages/HomePage/hotelCategory.dart';
 import 'package:foodecommerce/pages/ItemViewAll/viewProductDetail.dart';
 import 'package:foodecommerce/pages/navHomeScreen.dart';
@@ -12,6 +14,7 @@ import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 
 import '../../notifier/themeNotifier.dart';
+import '../../notifier/utils/apiUtils.dart';
 import '../../styles/constants.dart';
 import '../../styles/style.dart';
 import '../../utils/constants.dart';
@@ -40,6 +43,7 @@ class _BranchSelectState extends State<BranchSelect> {
   int selectAddRemove = -1;
   var _current = 0.obs;
   final CarouselController _controller = CarouselController();
+
   List<dynamic> Branch = [
     {
       "FavImg": "assets/images/loginpages/branch-1.png",
@@ -76,10 +80,62 @@ class _BranchSelectState extends State<BranchSelect> {
   var animStart = false.obs;
   var showSplash = true.obs;
 
+  int getBgColor(int index){
+    int color=0xffE8AF46;
+    int totalLen=5;
+    if(index%totalLen==0){
+      color=0xffE8AF46;
+    }
+    else if(index%totalLen==1){
+      color=0xffCCDB6F;
+    }
+    else if(index%totalLen==2){
+      color=0xff963256;
+    }
+    else if(index%totalLen==3){
+      color=0xff96462E;
+    }
+    else if(index%totalLen==4){
+      color=0xffA1D9F0;
+    }
+    return color;
+  }
+  int getTextColorColor(int index){
+    int color=0xffFFFFFF;
+    int totalLen=5;
+    if(index%totalLen==0){
+      color=0xffFFFFFF;
+    }
+    else if(index%totalLen==1){
+      color=0xff346D35;
+    }
+    else if(index%totalLen==2){
+      color=0xffFFFFFF;
+    }
+    else if(index%totalLen==3){
+      color=0xffFFFFFF;
+    }
+    else if(index%totalLen==4){
+      color=0xff044A60;
+    }
+    return color;
+  }
+
   @override
   void initState() {
     initAnim();
+    getOutletList();
     super.initState();
+  }
+
+  void getOutletList(){
+    getMasterDrp("", "OutletList", null, null).then((value){
+      debugPrint("OutletList $value");
+      Branch=value;
+      setState(() {
+
+      });
+    });
   }
 
   @override
@@ -90,18 +146,13 @@ class _BranchSelectState extends State<BranchSelect> {
     gridWidth = width - 30;
     width2 = width - 16;
     height2 = height - 16;
-    SizeConfig().init(context);
-    return Align(
-    alignment: Alignment.topLeft,
-      child: Scaffold(
-        backgroundColor: Color(0xffF5F7FE),
-        resizeToAvoidBottomInset: false,
-        body: SafeArea(
-            left: true,
-            top: true,
-            right: true,
-            bottom: true,
-          child: Stack(
+    return Container(
+      color: ColorUtil.themeColor,
+      child: SafeArea(
+        child: Scaffold(
+          backgroundColor: Color(0xffF5F7FE),
+          resizeToAvoidBottomInset: false,
+          body: Stack(
             children: [
               Container(
                 height: height,
@@ -117,34 +168,10 @@ class _BranchSelectState extends State<BranchSelect> {
                       color: ColorUtil.themeColor,
                       child: Row(
                         children: [
-                          Container(
-                            // padding: EdgeInsets.only(left: 10.0, right: 10.0),
-                              width: SizeConfig.screenWidth!-70,
-                              height: 50,
-                              child: CompanySettingsTextField(
-                                enable: true,
-                                hintText: "Search Product",
-                                img: "",
-                                Sufimg: "assets/images/loginpages/search.png",width: 100,
-                              )),
-                          GestureDetector(
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => FilterItems()),
-                              );
-                            },
-                            child: Container(
-                                width: 50,
-                                height: 50,
-                                child: Image.asset('assets/images/loginpages/Filter.png')
-                            ),
-                          )
-                        ],
+                          Text("Select Outlet",style: ts18(Colors.white,fontfamily: 'RM',fontsize: 22),)
+                        ]
                       ),
                     ),
-
                     InnerShadowTBContainer(
                       height: SizeConfig.screenHeight!-75,
                       width: width,
@@ -154,7 +181,9 @@ class _BranchSelectState extends State<BranchSelect> {
                           itemBuilder: (ctx,i){
                             return GestureDetector(
                               onTap: (){
-                                Navigator.push(context, MaterialPageRoute(builder: (context)=>Masterpage()),);
+                                outletId=Branch[i]['Id'];
+                                setSharedPrefString(outletId, SP_OUTLETID);
+                                Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>Masterpage()),);
                               },
                               child: Container(
                                 height: 170,
@@ -163,15 +192,19 @@ class _BranchSelectState extends State<BranchSelect> {
                                 padding: EdgeInsets.only(left: 30,right: 10),
                                 clipBehavior: Clip.antiAlias,
                                 decoration: BoxDecoration(
-                                    image: DecorationImage(image: AssetImage(Branch[i]['FavImg']),fit: BoxFit.cover,)
+                                  color: Color(getBgColor(i)),
+                                  borderRadius: BorderRadius.circular(15)
+                                    //image: DecorationImage(image: AssetImage(Branch[i]['FavImg']),fit: BoxFit.cover,)
                                 ),
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    Text(Branch[i]['FavItemName'].toUpperCase(),style: TextStyle(fontFamily: 'RB',fontSize:20,color: Colors.white),),
-                                    Text(Branch[i]['RestuName'].toUpperCase(),style: TextStyle(fontFamily: 'RB',fontSize:20,color: Colors.white),),
-                                    Text(Branch[i]['FavSubtitle'],style: TextStyle(fontFamily: 'RM',fontSize: 18,color: Colors.white),),
+                                    Text("${Branch[i]['Text']!=null?Branch[i]['Text'].toUpperCase():""}",
+                                      style: TextStyle(fontFamily: 'MB',fontSize:22,color: Color(getTextColorColor(i)),letterSpacing: 0.2),
+                                    ),
+                                  //  Text(Branch[i]['RestuName'].toUpperCase(),style: TextStyle(fontFamily: 'RB',fontSize:20,color: Colors.white),),
+                                  //  Text(Branch[i]['FavSubtitle'],style: TextStyle(fontFamily: 'RM',fontSize: 18,color: Colors.white),),
                                   ],
                                 ),
                               ),

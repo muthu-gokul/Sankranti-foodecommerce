@@ -2,11 +2,12 @@ import 'dart:developer';
 import 'dart:io';
 
 import 'package:intl/intl.dart';
+import 'package:path_provider/path_provider.dart';
 
 import '../utils/colorUtil.dart';
 import 'package:flutter/material.dart';
-
 import 'constants.dart';
+import 'package:http/http.dart' as http;
 
 Map<String,dynamic> accessId={
   "ManageUsersView":3,
@@ -291,4 +292,37 @@ String getOrdinal(n) {
     ord = 'rd';
   }
   return "$n${ord}";
+}
+
+Future<Directory?> getApplicationPath() async{
+  if(Platform.isAndroid){
+    return await getExternalStorageDirectory();
+  }
+  return await getApplicationDocumentsDirectory();
+}
+Future<void> download(String url,String imgPath,String imgFolder,String imgName,{VoidCallback? successCb}) async {
+  try{
+    final localPath = '$imgPath/$imgFolder/$imgName';
+     //console("url $url");
+    //console("SysImg Entered $imgName ${DateTime.now()}");
+    //useIsolate(imgName);
+    if(!File(localPath).existsSync()){
+      final response = await http.get(Uri.parse(url)).timeout(const Duration(seconds: 30),onTimeout: (){
+        return http.Response('{"Message":"Time Out"}',500);
+      });
+      if(response.statusCode==200){
+        final imageFile = await File(localPath).create(recursive: true);
+        await imageFile.writeAsBytes(response.bodyBytes);
+        //console("SysImg Downloaded $imgName ${DateTime.now()}");
+        //testCompressAndGetFile(imageFile,imgName,response.bodyBytes);
+        if(successCb!=null){
+          successCb();
+        }
+      }
+    }
+    //console("downloaded");
+  }catch(e){
+    console("_download catch $e");
+  }
+  //return "";
 }

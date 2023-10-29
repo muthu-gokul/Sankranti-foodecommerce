@@ -23,12 +23,13 @@ class Loader extends StatelessWidget {
             color:Colors.black54,
             child: Center(
               child: Container(
-                  height: 100,
-                  width: 100,
+                  height: 50,
+                  width: 50,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                   ),
-                  child: Image.asset("assets/images/Loader.gif",filterQuality: FilterQuality.high,gaplessPlayback: true,isAntiAlias: true,)
+                  child: CircularProgressIndicator(color: Colors.red,),
+                  //child: Image.asset("assets/images/Loader.gif",filterQuality: FilterQuality.high,gaplessPlayback: true,isAntiAlias: true,)
               ),
             )
         ),

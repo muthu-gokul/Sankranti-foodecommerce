@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:foodecommerce/pages/loginpage/login.dart';
+import 'package:foodecommerce/utils/constants.dart';
 
 import 'package:get/get.dart';
 import 'package:local_auth/local_auth.dart';
@@ -66,6 +67,10 @@ class _SplashScreenState extends State<SplashScreen> {
 
   void checkUserData() async{
     //await getFirebaseToken();
+    Directory? a=await getApplicationPath();
+    if(a!=null){
+      MyConstants.imgPath=a.path;
+    }
     String userId=await getSharedPrefString(SP_USER_ID);
     if(userId.isEmpty){
       navigate();
@@ -87,6 +92,7 @@ class _SplashScreenState extends State<SplashScreen> {
     params.add(ParameterModel(Key: "database", Type: "String", Value: await getDatabase()));
 
     ApiManager.GetInvoke(params).then((response){
+      log("$response");
       if(response[0]){
         try{
           var parsed=json.decode(response[1]);
@@ -94,7 +100,7 @@ class _SplashScreenState extends State<SplashScreen> {
           var t=parsed['Table'];
           if(t[0]['IsRegistered']){
             customerId=parseInt(t[0]['UserId']);
-            Navigator.push(context, MaterialPageRoute(builder: (context)=>BranchSelect()),);
+            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>BranchSelect()),);
             /*if(pin.isNotEmpty){
               setSharedPrefString(t[0]['TokenNumber'], SP_TOKEN);
              // Get.off(PinScreenLogin());
@@ -115,8 +121,8 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
-    SizeConfig().init(context);
     topPadding=MediaQuery.of(context).padding.top;
+    SizeConfig().init(context);
     return SafeArea(
       child: Stack(
         children: [
@@ -125,7 +131,7 @@ class _SplashScreenState extends State<SplashScreen> {
             width: MediaQuery.of(context).size.width,
             alignment: Alignment.center,
             color: Colors.white,
-            child: Image.asset("assets/splash.png"),
+            child: Image.asset("assets/splash.png",fit: BoxFit.fitWidth,width: SizeConfig.screenWidth,),
           ),
         ],
       ),

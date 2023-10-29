@@ -35,12 +35,13 @@ class MyConstants {
   static String alphaSpaceRegEx2 =
       "/[அ-ஔ]+|[க-னௌ]+|[ァ-ヴー]+|[a-zA-Z ]+|[々〆〤ヶ]+/u";
   static String addressRegEx = '[A-Za-z0-9-,_/*+()@. ]';
+  static const String emailRegEx = '[A-Za-z0-9-,_/*+()@.]';
   static String dbDateTimeFormat = 'yyyy-MM-dd HH:mm:ss';
-  static String rupeeString = '₹';
+  static String rupeeString = '\$';
   static String itemBlockPrefix="BL";
   static bool needUtilRefreshOnEachOrder=false;
 
-  static String imgPath= isLive? "/storage/emulated/0/Android/data/com.scutisoft.kotpad/":"/storage/emulated/0/Android/data/com.scutisoft.kotpaddev/";
+  static String imgPath= "";
 }
 TextStyle textStyle=TextStyle(fontSize: 12,color: Colors.black,fontFamily: 'RR');
 TextStyle textStyle1=TextStyle(fontSize: 12,color:Colors.black26,fontFamily: 'RR');

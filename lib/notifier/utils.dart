@@ -528,3 +528,52 @@ Future<Directory?> getApplicationPath() async{
     }
     return await getApplicationDocumentsDirectory();
 }
+
+String getOverAllSettings(int uniqueId){
+    String value="";
+    try{
+        List a=OVERALL_SETTINGS.where((element) => element['AppModuleId']==uniqueId).toList();
+        if(a.length==1){
+            value= a[0]['AppModuleValue'].toString();
+        }
+        return value;
+    }catch(e){
+        return value;
+    }
+}
+
+bool HasOutletRoundOff(){
+    String a=getOverAllSettings(overAllSettingsId['isHasRoundOff']);
+    if(a.isEmpty){
+        return true;
+    }
+    else{
+        return a.toLowerCase()=="true";
+    }
+}
+bool HasListenerForPendingKot(){
+    String a=getOverAllSettings(overAllSettingsId['listenForPendingKot']);
+    bool b=isHasBillSettingsAccess(featuresAccessId['listenForPendingKot']);
+    bool access=false;
+    if(a.isEmpty){
+        access=true;
+    }
+    else{
+        access= a.toLowerCase()=="true";
+    }
+    return access&&!b;
+}
+int ListenTimerForPendingKot(){
+    String a=getOverAllSettings(overAllSettingsId['listenTimerForPendingKot']);
+    if(a.isEmpty){
+        return 15;
+    }
+    else{
+        return parseInt(a);
+    }
+}
+
+void clearSession(){
+    setSharedPrefString("", SP_USER_ID);
+    setSharedPrefString("", SP_OUTLETID);
+}

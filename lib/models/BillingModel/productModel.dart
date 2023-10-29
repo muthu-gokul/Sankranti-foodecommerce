@@ -27,6 +27,7 @@ class ProductModel{
   bool isProductWeightEnable;
   int orderTypeId;
   bool isHoldProduct;
+  String productImage;
 
   ProductModel(
       {this.quantity,
@@ -53,7 +54,8 @@ class ProductModel{
         this.productCategoryId,
         this.isProductWeightEnable=false,
         this.orderTypeId=1,
-        this.isHoldProduct=false
+        this.isHoldProduct=false,
+        this.productImage=""
       });
 
   ProductObj(orderId){
@@ -75,9 +77,10 @@ class ProductModel{
     obj['KOTId'] = kotId;
     obj['OrderStatusId'] = null;
     obj['IsActive'] = true;
-    if(isHasBillSettingsAccess(featuresAccessId['OrderTypePriceTVP'])){
+    obj['OrderTypeId'] = orderTypeId;
+   /* if(isHasBillSettingsAccess(featuresAccessId['OrderTypePriceTVP'])){
       obj['OrderTypeId'] = orderTypeId;
-    }
+    }*/
     return obj;
   }
 
@@ -95,6 +98,7 @@ class ProductModel{
     productModel.productName = productDetailObj['ProductName'];
     productModel.productPrice = productDetailObj['ProductPrice'];
     productModel.productCategoryId = productDetailObj['ProductCategoryId'];
+    productModel.productImage = productDetailObj['ProductLogo']??"";
     productModel.quantity = productDetailObj['ProductQuantity'];
     productModel.taxAmount = productDetailObj['TaxAmount'];
     productModel.isDiscount = productDetailObj['IsDiscount'];

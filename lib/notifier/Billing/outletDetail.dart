@@ -1,5 +1,8 @@
 import 'dart:convert';
+import 'dart:developer';
 
+import 'package:basic_utils/basic_utils.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../Popup/alertDialog.dart';
 import '../../api/sp.dart';
@@ -16,11 +19,12 @@ import 'cartNotifier.dart';
 import 'configuration.dart';
 import 'floorsOrderTypePopulate.dart';
 import 'otherServices/quickServiceHandler.dart';
+import 'otherServices/takeAwayNotifier.dart';
 import 'servicePageNotifier.dart';
 import 'settings/itemBlockNotifier.dart';
 
 final BillingController billingController = Get.put(BillingController());
-
+List OVERALL_SETTINGS=[];
 void getBillingOutlet() async{
   params=await getParameterEssential();
   params.add(ParameterModel(Key: "SpName",Value: Sp.BilingOutletSp,Type: "string"));
@@ -28,8 +32,9 @@ void getBillingOutlet() async{
       if(!value[0]){
        return;
       }
-      var response=json.decode(value[1]);
 
+      var response=json.decode(value[1]);
+      //log("$response");
        setOutletDetail("UserDetail", response["Table"]);
        setOutletDetail("OutletAddress", response["Table1"]);
        billingController.fetchOutletDetails(response);
@@ -62,7 +67,7 @@ void getBillingOutlet() async{
       setOutletDetail("TakeAwayList", []);
       setOutletDetail("HomeDeliveryList", []);
       setOutletDetail("QuickServiceList", []);
-
+      OVERALL_SETTINGS=response['Table29']??[];
       print("c_OrderTypeId ${c_OrderTypeId.value}");
       OutletInit();
   });
@@ -71,7 +76,7 @@ void getBillingOutlet() async{
 
 RxnInt c_FloorId=RxnInt();
 Rxn c_FloorName=Rxn();
-RxnInt c_OrderTypeId = RxnInt(1);//ParentOrderTypeId
+RxnInt c_OrderTypeId = RxnInt(2);//ParentOrderTypeId
 Rxn c_OrderTypeName=Rxn();
 RxnInt c_MenuId = RxnInt();
 RxnInt c_CategoryId = RxnInt();
@@ -80,10 +85,15 @@ RxnInt c_InnerSubCategoryId = RxnInt();
 bool isDefaultMenu=false;
 void OutletInit(){
   if(filtermenu.isNotEmpty){
-    updateMenu(0);
+
+    int index=filtermenu.indexWhere((element) => element.isDefault);
+    if(index!=-1){
+      updateMenu(index);
+
+    }
   }
-  populateFloor();
-  getTableStatus(null, null);
+  //populateFloor();
+  //getTableStatus(null, null);
 }
 
 void updateMenu(int index){
@@ -105,17 +115,23 @@ void populateMainCategory() async{
         MainCategoryName: element['ProductCategoryName'],
         MainCategory: element['ProductCategoryId'],
         MenuId: element['MenuId'],
+        totalProducts: element['TotalProducts']
       ));
     }
   });
 
 
   if(isDefaultMenu){
+    int totalProducts=0;
+    filtermainCategory.forEach((element) {
+      totalProducts=totalProducts+element.totalProducts;
+    });
     filtermainCategory.insert(0, new MainCategoryTable4(
         MainCategoryName: "All",
         MainCategory: 0,
         MenuId: c_MenuId.value,
-        imgPath: "CategoryItems/DefaultCategory.png"
+        imgPath: "CategoryItems/DefaultCategory.png",
+      totalProducts: totalProducts
     ));
   }
   filtermainCategory.refresh();
@@ -143,6 +159,17 @@ void updateMainCategory(index){
   //Populate SubCategory
   //populateSubCategory();
   populateProducts(null,c_OrderTypeId.value);
+}
+String getCategoryName(){
+  if(c_CategoryId.value==null){
+    return "";
+  }
+  if(c_CategoryId.value==0){
+    return "All";
+  }
+  else{
+    return StringUtils.capitalize(filtermainCategory.where((p0) => p0.MainCategory==c_CategoryId.value).toList()[0].MainCategoryName??"");
+  }
 }
 
 void populateSubCategory() async{

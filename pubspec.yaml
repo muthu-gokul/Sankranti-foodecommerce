@@ -67,6 +67,7 @@ dependencies:
   device_info:
   uuid:
   local_auth:
+  image_picker:
   scutiwidgets:
     git:
       url: https://github.com/muthu-gokul/scutiwidgets.git
@@ -102,7 +103,7 @@ flutter:
     - assets/
     - assets/images/landingPage/
     - assets/images/loginpages/
-    - assets/images/foodimgs/
+    - assets/items/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

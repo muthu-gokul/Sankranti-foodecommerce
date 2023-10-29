@@ -180,7 +180,7 @@ class OrderModel {
     product.orderTypeId=orderTypeId??c_OrderTypeId.value??1;
     //product = productDetail.find("#otherChargesId").val();
     product.taxValue = 0.0;
-
+    product.productImage=productDetail['ProductLogo'];
     /* if(this.productList==null){
       this.productList!.add(product);
     }*/
@@ -419,8 +419,7 @@ class OrderModel {
     this.grandTotalAmount = Calculation().add( addonAmount, grandTotalAmount);
     this.grandTotalAmount = parseDouble(this.grandTotalAmount!.toStringAsFixed(maxPrecision));
     //print("grandTotalAmount.round() ${grandTotalAmount} ${grandTotalAmount.round()} ${Calculation().roundOff(this.grandTotalAmount!.round(), this.grandTotalAmount)}");
-    this.roundOffAmount = Calculation().roundOff(grandTotalAmount.round(), grandTotalAmount);
-    this.roundOffAmount = parseDouble(this.roundOffAmount!.toStringAsFixed(maxPrecision));
+
     taxList = tempTaxList;
     otherChargesList = tempOCList;
     productTaxMappingList = tempTaxProductMapping;
@@ -432,6 +431,15 @@ class OrderModel {
       element.OtherChargesAmount=parseDouble(element.OtherChargesAmount!.toStringAsFixed(maxPrecision));
     });
 
+    if(HasOutletRoundOff()){
+      this.roundOffAmount = Calculation().roundOff(grandTotalAmount.round(), grandTotalAmount);
+      this.roundOffAmount = parseDouble(this.roundOffAmount!.toStringAsFixed(maxPrecision));
+    }
+    else{
+      this.roundOffAmount=0.0;
+    }
+
+    addBtnRefresh.value=!addBtnRefresh.value;
   }
 
   productCalculation(ProductModel productDetail, orderUtils,{c_product_subtotal_iwd=0.0}){

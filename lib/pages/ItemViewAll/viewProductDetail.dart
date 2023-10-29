@@ -1,20 +1,25 @@
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_html/flutter_html.dart';
+import 'package:foodecommerce/notifier/Billing/outletDetail.dart';
 import 'package:foodecommerce/utils/colorUtil.dart';
-import 'package:foodecommerce/widgets/customPopUp.dart';
+import 'package:foodecommerce/utils/constants.dart';
+import 'package:foodecommerce/widgets/customCheckBox.dart';
 import 'package:get/get.dart';
-import 'package:provider/provider.dart';
-
-import '../../notifier/themeNotifier.dart';
+import 'package:basic_utils/basic_utils.dart' as utils;
+import 'package:scutiwidgets/authenticationPages/constants.dart';
+import '../../notifier/Billing/billingController.dart';
+import '../../notifier/Billing/cartNotifier.dart';
 import '../../styles/constants.dart';
-import '../../styles/style.dart';
 import '../../utils/sizeLocal.dart';
 import '../../widgets/bottomPainter.dart';
-import '../../widgets/bottomShowmadol/bottomShowDailog.dart';
 import '../../widgets/companySettingsTextField.dart';
+import '../../widgets/customAppBar.dart';
+import '../../widgets/customNetworkImg.dart';
 import '../../widgets/innerShadowTBContainer.dart';
 import '../HomePage/Cartpage.dart';
-import '../filter/FilterItems.dart';
 
 class ViewProductDetails extends StatefulWidget {
   const ViewProductDetails({Key? key}) : super(key: key);
@@ -128,67 +133,57 @@ class _ViewProductDetailsState extends State<ViewProductDetails> {
     },
   ];
 
+  RxBool imageReload=RxBool(false);
+  @override
+  void initState() {
+    print("filterproduct ${filterproduct.length}");
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     width = MediaQuery.of(context).size.width;
-    height = MediaQuery.of(context).size.height;
+    height = MediaQuery.of(context).size.height-topPadding;
     width2 = width - 16;
     height2 = height - 16;
     gridWidth = width - 30;
     return SafeArea(
       child: Scaffold(
-      backgroundColor: ColorUtil.themeColorBg,
+      backgroundColor: ColorUtil.themeWhite,
           body: Stack(
             children: [
               Column(
                 children: [
-                  SizedBox(
-                    height: 20,
-                  ),
+                  const SizedBox(height: 20,),
                   Row(
                     children: [
-                      Container(
-                        height: 35,
-                        width: 35,
-                        alignment: Alignment.center,
-                        margin: EdgeInsets.only(
-                          left: 15,
-                        ),
-                        decoration: BoxDecoration(
-                            color: Color(0xffEFF1F8),
-                            borderRadius: BorderRadius.circular(5),
-                            border: Border.all(color: Color(0xffD4D5D7))),
-                        child: IconButton(
-                          onPressed: () {
-                            Get.back();
-                          },
-                          icon: Icon(
-                            Icons.arrow_back_ios_sharp,
-                            color: ColorUtil.themeColor,
-                            size: 20,
-                          ),
-                        ),
+                      const SizedBox(width: 10,),
+                      ArrowBack(
+                        onTap: (){
+                          Get.back();
+                        },
                       ),
                       Container(
                         width: SizeConfig.screenWidth! - 60,
-                        padding: EdgeInsets.only(left: 15.0, right: 15.0),
-                        child: Text(
-                          'South Indian',
-                          style: TextStyle(
-                            fontFamily: 'RM',
-                            fontSize: 16,
-                            color: Color(0xff000000),
+                        padding: const EdgeInsets.only(left: 15.0, right: 15.0),
+                        child: Obx(() => RichText(
+                          text: TextSpan(
+                            text: getCategoryName(),
+                            style: const TextStyle(fontFamily: 'MB', fontSize:16, color: Color(0xff000000),),
+                            children: <TextSpan>[
+                              TextSpan(text: '${c_CategoryId.value}', style: TextStyle(fontWeight: FontWeight.bold,fontSize: 0)),
+                            ],
                           ),
-                        ),
+                        )
+                       )
                       ),
                     ],
                   ),
-                  SizedBox(
-                    height: 20,
-                  ),
-                  Row(
+                  const SizedBox(height: 20,),
+                  /*Row(
                     children: [
                       Container(
-                          padding: EdgeInsets.only(left: 10.0,),
+                          padding: const EdgeInsets.only(left: 10.0,),
                           width: SizeConfig.screenWidth!-50,
                           height: 50,
                           child: CompanySettingsTextField(
@@ -211,132 +206,167 @@ class _ViewProductDetailsState extends State<ViewProductDetails> {
                         ),
                       ),
                     ],
-                  ),
-                  InnerShadowTBContainer(
-                    height: height - 145,
+                  ),*/
+                  Obx(() => InnerShadowTBContainer(
+                    height: height - 125,
                     width: width,
                     //  clipBehavior: Clip.antiAlias,
                     child: isGridView
                         ? ListView.builder(
-                         //   physics: NeverScrollableScrollPhysics(),
-                            itemCount: FavItems.length,
-                            shrinkWrap: true,
-                            itemBuilder: (ctx, i) {
-                              return Container(
-                                height: 120,
-                                width: width,
-                                decoration: BoxDecoration(
-                                  border: Border.all(color: Color(0XFFE4E4E4)),
-                                  borderRadius:
-                                  BorderRadius.circular(8),
-                                  color: Color(0xffffffff),
-                                ),
-                                clipBehavior: Clip.antiAlias,
-                                margin: EdgeInsets.all(10),
-                                child: Stack(
+                      //   physics: NeverScrollableScrollPhysics(),
+                        itemCount: filterproduct.length,
+                        shrinkWrap: true,
+                        itemBuilder: (ctx, i) {
+                          return Container(
+                            //height: 120,
+                            width: width,
+                            decoration: BoxDecoration(
+                              //border: Border.all(color: const Color(0XFFE4E4E4)),
+                              borderRadius: BorderRadius.circular(8),
+                              color:  ColorUtil.themeColorBg,
+                            ),
+                            clipBehavior: Clip.antiAlias,
+                            margin: EdgeInsets.fromLTRB(10,10,10,i==filterproduct.length-1?100:0),
+                            child: Stack(
+                              alignment: Alignment.center,
+                              children: [
+                                Row(
+                                  //   crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
-                                    Row(
-                                      crossAxisAlignment:
-                                      CrossAxisAlignment.center,
-                                      // mainAxisAlignment:
-                                      // MainAxisAlignment.spaceEvenly,
-                                      children: [
-                                        Container(
-                                          width: width * 0.30,
-                                          height: 100,
-                                          clipBehavior: Clip.antiAlias,
-                                          margin: EdgeInsets.only(
-                                              left: 10, right: 10),
-                                          decoration: BoxDecoration(
-                                            borderRadius:
-                                            BorderRadius.circular(5),
-                                            color: Colors.white,
+                                    Obx(() => Container(
+                                      // width: width * 0.30,
+                                      height: 80,
+                                      width: 100,
+                                      clipBehavior: Clip.antiAlias,
+                                      margin: const EdgeInsets.only(left: 0, right: 5),
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(5),
+                                        color: Colors.transparent,
+                                      ),
+                                      alignment: Alignment.center,
+                                      child:Stack(
+                                        children: [
+
+                                          Align(
+                                              alignment: Alignment.center,
+                                              child: Container(
+                                                // width: width * 0.30,
+                                                height: 60,
+                                                width: 60,
+                                                clipBehavior: Clip.antiAlias,
+                                                margin: const EdgeInsets.only(left: 0, right: 0),
+                                                decoration: BoxDecoration(
+                                                  shape: BoxShape.circle,
+                                                  color: ColorUtil.themeColorBg2,
+                                                ),
+                                                alignment: Alignment.center,
+                                              )
                                           ),
-                                          alignment: Alignment.center,
-                                          child: Image.asset(
-                                            FavItems[i]['FavImg'],
-                                            height: 100,
-                                            fit: BoxFit.cover,
+                                          Align(
+                                            alignment: Alignment.center,
+                                            child: imageReload.value?Container(): CustomNetworkImg(
+                                              dbFilePath: filterproduct[i]['ProductLogo'],
+                                              directoryPath: MyConstants.imgPath,
+                                              height: 80,
+                                              width: 80,
+                                              loaderHeight: 80,
+                                              loaderWidth: 80,
+                                            ),
+                                          )
+                                        ],
+                                      )
+                                    )),
+
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Text(utils.StringUtils.capitalize(filterproduct[i]['ProductName']??""),
+                                            style: TextStyle(fontFamily: 'MB', color: ColorUtil.themeBlack, fontSize: 15),
+                                          ),
+                                          const SizedBox(height: 8,),
+                                          Row(
+                                            mainAxisSize:MainAxisSize.min,
+                                            children: [
+                                              ProductTypeCircle(type:filterproduct[i]['ProductType']??"",),
+                                              const SizedBox(width: 10,),
+                                              Visibility(
+                                                visible: !filterproduct[i]['IsSeveralProduct'],
+                                                child: Text('${MyConstants.rupeeString} ${filterproduct[i]['Price']}',
+                                                  style: TextStyle(fontFamily: 'MB', color: ColorUtil.themeBlack, fontSize: 16),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    const SizedBox(width: 5,),
+                                    Obx(() => Stack(
+                                      alignment: addBtnRefresh.value? Alignment.center:Alignment.center,
+                                      children: [
+                                        GestureDetector(
+                                          onTap: (){
+                                            if(filterproduct[i]['IsSeveralProduct']){
+                                              Addons(context);
+                                            }
+                                            else{
+                                              onProductClick(filterproduct[i]);
+                                            }
+
+                                          },
+                                          child: Container(
+                                            width: 80,
+                                            height: 40,
+                                            decoration: BoxDecoration(
+                                                color: ColorUtil.themeColor,
+                                                borderRadius:  BorderRadius.circular(10)
+                                            ),
+                                            child: Center(
+                                              child: Text(
+                                                "Add",
+                                                style: ts16(ColorUtil.primary,fontfamily: 'MB'),
+                                              ),
+                                            ),
                                           ),
                                         ),
-                                        Container(
-                                        padding: EdgeInsets.only(left: 20),
-                                          child: Column(
-                                            crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                            mainAxisAlignment:
-                                            MainAxisAlignment.spaceEvenly,
-                                            children: [
-                                              Container(
-                                                child: Text(
-                                                  FavItems[i]['FavItemName'],
-                                                  style: TextStyle(
-                                                      fontFamily: 'RB',
-                                                      color: Colors.black,
-                                                      fontSize: 14),
+                                        Visibility(
+                                          visible: checkCurrentProduct(filterproduct[i]['ProductId']),
+                                          child: Container(
+                                            height: 42,
+                                            width: 120,
+                                            decoration: BoxDecoration(
+                                                color:ColorUtil.themeColorBg,
+                                                borderRadius:  BorderRadius.circular(5)
+                                            ),
+                                            child: Row(
+                                              mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                              children: [
+                                                addRemoveBtn(Icon(Icons.remove,color: ColorUtil.themeColor,size: 25,),
+                                                    onTap: (){
+                                                      addBtnHandler(filterproduct[i]['ProductId'],isAdd: false);
+                                                    },
+                                                  isAdd: false
                                                 ),
-                                              ),
-                                              Row(
-                                                children: [
-                                                  Text(
-                                                    '4.5',
-                                                    style:
-                                                    TextStyle(
-                                                      fontFamily:
-                                                      'RR',
-                                                      fontSize:
-                                                      12,
-                                                      color: Colors
-                                                          .black,
-                                                    ),
-                                                  ),
-                                                  Icon(
-                                                    Icons.star,
-                                                    color:ColorUtil.themeColor,
-                                                    size: 15,
-                                                  ),
-                                                  Text(
-                                                    '(233 ratings)',
-                                                    style:
-                                                    TextStyle(
-                                                      fontFamily:
-                                                      'RR',
-                                                      fontSize:
-                                                      12,
-                                                      color: Colors
-                                                          .black,
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                              Text(
-                                                '(15 mins)',
-                                                style:
-                                                TextStyle(
-                                                  fontFamily:
-                                                  'RR',
-                                                  fontSize:
-                                                  12,
-                                                  color: Colors
-                                                      .black,
+                                                Text("${getCurrentProductQty(filterproduct[i]['ProductId'])}",
+                                                  style: ts16(ColorUtil.primaryTextColor4,fontfamily: 'MB'),
                                                 ),
-                                              ),
-                                              Container(
-                                                child: Text(
-                                                  FavItems[i]['Rate'],
-                                                  style: TextStyle(
-                                                      fontFamily: 'RB',
-                                                      color: Colors.black,
-                                                      fontSize: 14),
+                                                addRemoveBtn(Icon(Icons.add,color: ColorUtil.primaryColor,size: 25,),
+                                                    onTap: (){
+                                                      addBtnHandler(filterproduct[i]['ProductId'],isAdd: true);
+                                                    }
                                                 ),
-                                              ),
-
-                                            ],
+                                              ],
+                                            ),
                                           ),
                                         ),
                                       ],
-                                    ),
-                                    /*Positioned(child:Align(
+                                    ))
+                                  ],
+                                ),
+                                /*Positioned(child:Align(
                                       alignment: Alignment.center,
                                       child:  Container(
                                         height: 40,
@@ -355,20 +385,29 @@ class _ViewProductDetailsState extends State<ViewProductDetails> {
                                         ),
                                       ),
                                     )),*/
-                                    Positioned(
-                                    bottom: 0,
-                                    right: 0,
-                                      child: GestureDetector(
-                                      onTap: (){
-                                        Addons(context);
-                                      },
+
+                               /* Obx(() => Positioned(
+                                  bottom: 0,
+                                  right: addBtnRefresh.value? 0:0,
+                                  child: Stack(
+                                    children: [
+                                      GestureDetector(
+                                        onTap: (){
+                                          if(filterproduct[i]['IsSeveralProduct']){
+                                            Addons(context);
+                                          }
+                                          else{
+                                            onProductClick(filterproduct[i]);
+                                          }
+
+                                        },
                                         child: Container(
                                           width: gridWidth*0.31,
                                           height: 40,
                                           decoration: BoxDecoration(
                                               color: ColorUtil.primaryColor,
                                               borderRadius:
-                                              BorderRadius.only(
+                                              const BorderRadius.only(
                                                 topLeft:
                                                 Radius.circular(20),
                                               )),
@@ -380,197 +419,133 @@ class _ViewProductDetailsState extends State<ViewProductDetails> {
                                           ),
                                         ),
                                       ),
-                                    )
-                                  ],
-                                ),
-                              );
-                            })
-                    :Padding(
-                      padding: EdgeInsets.only(
-                        left: 10,
-                        right: 10,
-                      ),
-                      child: SingleChildScrollView(
-                        child: Container(
-                          padding: EdgeInsets.only(
-                            top: 10,
-                          ),
-                          child: Wrap(
-                            spacing: 10,
-                            runSpacing: 20,
-                            children: FavItems.asMap()
-                                .map((key, value) => MapEntry(
-                                key,
-                                Container(
-                                  height: 200,
-
-                                  ///  width: width*0.48,
-                                  //   margin: EdgeInsets.fromLTRB(width*0.01, 5, width*0.01, 5),
-                                  width: gridWidth * 0.5,
-                                  //margin: EdgeInsets.fromLTRB(10, 5, width*0.01, 5),
-                                  clipBehavior: Clip.antiAlias,
-                                  decoration: BoxDecoration(
-                                      borderRadius:
-                                      BorderRadius.circular(5),
-                                      color: Colors.white),
-                                  child: Column(
-                                    children: [
-                                      Container(
-                                        width:
-                                        SizeConfig.screenWidth,
-                                        height: 150,
-                                        child: Stack(
-                                          children: [
-                                            Image.asset(
-                                              value['FavImg'],
-                                              fit: BoxFit.cover,
-                                              height: 150,
-                                              width: SizeConfig
-                                                  .screenWidth,
-                                            ),
-                                            Positioned(
-                                              top: 10,
-                                              left: 10,
-                                              child: Container(
-                                                width: 50,
-                                                height: 20,
-                                                alignment: Alignment
-                                                    .center,
-                                                decoration:
-                                                BoxDecoration(
-                                                  borderRadius:
-                                                  BorderRadius
-                                                      .circular(
-                                                      2.0),
-                                                  color:
-                                                  Colors.white,
-                                                ),
-                                                child: Text(
-                                                  value[
-                                                  'FavVegNon'],
-                                                  style: TextStyle(
-                                                      fontFamily:
-                                                      'RR',
-                                                      fontSize: 12,
-                                                      color: Color(
-                                                          value[
-                                                          'FavColorCatg'])),
-                                                ),
+                                      Visibility(
+                                        visible: checkCurrentProduct(filterproduct[i]['ProductId']),
+                                        child: Container(
+                                          height: 40,
+                                          width: gridWidth*0.31,
+                                          decoration: BoxDecoration(
+                                              color:ColorUtil.primaryColor,
+                                              borderRadius: const BorderRadius.only(topLeft: Radius.circular(10),)
+                                          ),
+                                          child: Row(
+                                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                            children: [
+                                              addRemoveBtn(Icon(Icons.remove,color: ColorUtil.primaryColor,size: 25,),
+                                                  onTap: (){
+                                                    addBtnHandler(filterproduct[i]['ProductId'],isAdd: false);
+                                                  }
                                               ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      Container(
-                                        height: 50,
-                                        width: SizeConfig
-                                            .screenWidth! *
-                                            0.9,
-                                        padding: EdgeInsets.only(
-                                          left: 10,
-                                          right: 10,
-                                        ),
-                                        child: Row(
-                                          mainAxisAlignment:
-                                          MainAxisAlignment
-                                              .center,
-                                          crossAxisAlignment:
-                                          CrossAxisAlignment
-                                              .start,
-                                          children: [
-                                            Column(
-                                              mainAxisAlignment:
-                                              MainAxisAlignment
-                                                  .center,
-                                              crossAxisAlignment:
-                                              CrossAxisAlignment
-                                                  .start,
-                                              children: [
-                                                Text(
-                                                  value['Rate'],
-                                                  style: TextStyle(
-                                                    fontFamily:
-                                                    'RB',
-                                                    fontSize: 14,
-                                                    color: Colors
-                                                        .black,
-                                                  ),
-                                                ),
-                                                Text(
-                                                  value[
-                                                  'FavItemName'],
-                                                  style: TextStyle(
-                                                    fontFamily:
-                                                    'RR',
-                                                    fontSize: 10,
-                                                    color: Colors
-                                                        .black26,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                            Spacer(),
-                                            Column(
-                                              mainAxisAlignment:
-                                              MainAxisAlignment
-                                                  .center,
-                                              crossAxisAlignment:
-                                              CrossAxisAlignment
-                                                  .end,
-                                              children: [
-                                                Row(
-                                                  children: [
-                                                    Icon(
-                                                      Icons.star,
-                                                      color: Colors
-                                                          .yellow,
-                                                      size: 15,
-                                                    ),
-                                                    Text(
-                                                      '4.5(233)',
-                                                      style:
-                                                      TextStyle(
-                                                        fontFamily:
-                                                        'RR',
-                                                        fontSize:
-                                                        12,
-                                                        color: Colors
-                                                            .black,
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                                Text(
-                                                  value[
-                                                  'FavSubtitle'],
-                                                  style: TextStyle(
-                                                    fontFamily:
-                                                    'RM',
-                                                    fontSize: 10,
-                                                    color: Colors
-                                                        .black26,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ],
+                                              Text("${getCurrentProductQty(filterproduct[i]['ProductId'])}",style: TSWhite166,),
+                                              addRemoveBtn(Icon(Icons.add,color: ColorUtil.primaryColor,size: 25,),
+                                                  onTap: (){
+                                                    addBtnHandler(filterproduct[i]['ProductId'],isAdd: true);
+                                                  }
+                                              ),
+                                            ],
+                                          ),
                                         ),
                                       ),
                                     ],
                                   ),
-                                )))
-                                .values
-                                .toList(),
+                                ))*/
+                              ],
+                            ),
+                          );
+                        })
+                        :Padding(padding: const EdgeInsets.only(left: 10, right: 10,bottom: 0),
+                        child: SingleChildScrollView(
+                          child: Container(
+                            padding: const EdgeInsets.only(top: 10,),
+                            child: Wrap(
+                              spacing: 10,
+                              runSpacing: 20,
+                              children: filterproduct.asMap()
+                                  .map((key, value) => MapEntry(
+                                  key,
+                                  Container(
+                                    height: 200,
+                                    width: gridWidth * 0.5,
+                                    clipBehavior: Clip.antiAlias,
+                                    decoration: BoxDecoration(borderRadius: BorderRadius.circular(5), color: Colors.white),
+                                    margin: EdgeInsets.only(bottom: key==filterproduct.length-1?20:0),
+                                    child: Column(
+                                      mainAxisAlignment: MainAxisAlignment.start,
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        SizedBox(
+                                          width: SizeConfig.screenWidth,
+                                          height: 120,
+                                          child: Stack(
+                                            children: [
+                                              Obx(() => Container(
+                                                // width: width * 0.30,
+                                                height: 100,
+                                                width:  gridWidth * 0.5,
+                                                clipBehavior: Clip.antiAlias,
+                                                margin: const EdgeInsets.only(left: 10, right: 10),
+                                                decoration: BoxDecoration(
+                                                  borderRadius: BorderRadius.circular(5),
+                                                  color: Colors.white,
+                                                ),
+                                                alignment: Alignment.center,
+                                                child:imageReload.value?Container(): CustomNetworkImg(
+                                                  dbFilePath: value['ProductLogo'],
+                                                  directoryPath: MyConstants.imgPath,
+                                                  height: 100,
+                                                  loaderHeight: 100,
+                                                  loaderWidth: 100,
+                                                ),
+                                              )),
+                                            /*  Positioned(
+                                                top: 10,
+                                                left: 10,
+                                                child: Container(
+                                                  width: 50,
+                                                  height: 20,
+                                                  alignment: Alignment.center,
+                                                  decoration: BoxDecoration(
+                                                    borderRadius: BorderRadius.circular(2.0),
+                                                    color: Colors.white,
+                                                  ),
+                                                  child: Text(value['FavVegNon'],
+                                                    style: TextStyle(fontFamily: 'RR', fontSize: 12, color: Color(value['FavColorCatg'])),
+                                                  ),
+                                                ),
+                                              ),*/
+                                            ],
+                                          ),
+                                        ),
+                                        Padding(
+                                          padding: const EdgeInsets.only(left: 10,right: 10),
+                                          child: Text(utils.StringUtils.capitalize(value['ProductName']??""),
+                                            style: TextStyle(fontFamily: 'RR', color: ColorUtil.themeBlack, fontSize: 15),
+                                          ),
+                                        ),
+                                        Padding(
+                                          padding: const EdgeInsets.only(left: 10,right: 10,top: 5),
+                                          child: Visibility(
+                                            visible: !value['IsSeveralProduct'],
+                                            child: Text('${value['Price']}',
+                                              style: TextStyle(fontFamily: 'RB', color: ColorUtil.themeBlack, fontSize: 16),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  )))
+                                  .values
+                                  .toList(),
+                            ),
                           ),
                         ),
-                      ),
                     ),
-                  ),
+                  ),)
                 ],),
               Positioned(
                 bottom: 60,
                 right: 20,
-                child: DialogExample(),
+                child: DialogExample(imageReload: imageReload,),
               ),
               Positioned(bottom: -15, child: BottomNavi()),
               Align(
@@ -579,13 +554,13 @@ class _ViewProductDetailsState extends State<ViewProductDetails> {
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => CartPage()),
+                        MaterialPageRoute(builder: (context) => const CartPage()),
                       );
                     },
                     child: Container(
                         width: 60,
                         height: 60,
-                        margin: EdgeInsets.only(bottom: 15),
+                        margin: const EdgeInsets.only(bottom: 15),
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           color: ColorUtil.themeColor,
@@ -594,18 +569,36 @@ class _ViewProductDetailsState extends State<ViewProductDetails> {
                               color: ColorUtil.themeColor.withOpacity(0.3),
                               blurRadius: 25.0, // soften the shadow
                               spreadRadius: 5.0, //extend the shadow
-                              offset: Offset(
+                              offset: const Offset(
                                 0.0, // Move to right 10  horizontally
                                 10.0, // Move to bottom 10 Vertically
                               ),
                             )
                           ],
                         ),
-                        child: Icon(
-                          Icons.shopping_cart,
-                          color: Color(0xffffffff),
-                          size: 30,
-                        ))),
+                        child: Stack(
+                          alignment: Alignment.center,
+                          children: [
+                             Icon(
+                              Icons.shopping_cart,
+                              color: Color(0xffffffff),
+                              size: 30,
+                            ),
+                            Positioned(
+                                right: 10,
+                                top: 5,
+                                child: Container(
+                                  padding: EdgeInsets.all(5),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: Obx(() => Text("${c_orderDetail.value!.productList!.length}",style: TextStyle(fontFamily: 'RB'),))
+                                ),
+                            ),
+                          ],
+                        ))
+                ),
               ),
             ],
           )
@@ -614,20 +607,11 @@ class _ViewProductDetailsState extends State<ViewProductDetails> {
   }
 }
 
-addRemoveBtn(Widget icon) {
-  return Container(
-    height: 25,
-    width: 25,
-    decoration: BoxDecoration(
-        color: Colors.white, borderRadius: BorderRadius.circular(5)),
-    child: Center(
-      child: icon,
-    ),
-  );
-}
+
 
 class DialogExample extends StatelessWidget {
-  const DialogExample({super.key});
+  RxBool imageReload;
+  DialogExample({super.key,required this.imageReload});
 
   @override
   Widget build(BuildContext context) {
@@ -644,303 +628,48 @@ class DialogExample extends StatelessWidget {
           //     Text('19',style: TextStyle(fontFamily: 'RB',fontSize: 18,color: Colors.white,),),
           //   ],
           // ),
-          content: SingleChildScrollView(
-            child: Container(
-              height: 250,
-              child: SingleChildScrollView(
-                scrollDirection: Axis.vertical,
-                clipBehavior: Clip.antiAlias,
-                child: Column(
-                  children: [
-                    Row(
+          content: SizedBox(
+            height: 250,
+            width: SizeConfig.screenWidth!*0.7,
+            child:ListView.builder(
+              itemCount: filtermainCategory.length,
+              itemBuilder: (ctx,i){
+                return GestureDetector(
+                  onTap: (){
+                    Navigator.pop(context);
+                    updateMainCategory(i);
+                    imageReload.value=true;
+                    Timer(Duration(milliseconds: 100), () {
+                      imageReload.value=false;
+                    });
+                  },
+                  child: Container(
+                    color: Colors.transparent,
+                    margin: const EdgeInsets.only(bottom: 20),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
-                          'Recommended',
-                          style: TextStyle(
-                            fontFamily: 'RB',
-                            fontSize: 18,
-                            color: Colors.white,
+                        Flexible(
+                          child: Text(
+                            utils.StringUtils.capitalize(filtermainCategory[i].MainCategoryName??""),
+                            style:filtermainCategory[i].MainCategory==c_CategoryId.value?
+                            const TextStyle(fontFamily: 'RB', fontSize: 18, color: Colors.white,):
+                            const TextStyle(fontFamily: 'RR', fontSize: 16, color: Colors.white,),
                           ),
                         ),
-                        Spacer(),
+                        const SizedBox(width: 5,),
                         Text(
-                          '19',
-                          style: TextStyle(
-                            fontFamily: 'RB',
-                            fontSize: 18,
-                            color: Colors.white,
-                          ),
+                          '${filtermainCategory[i].totalProducts}',
+                          style:filtermainCategory[i].MainCategory==c_CategoryId.value?
+                          const TextStyle(fontFamily: 'RB', fontSize: 20, color: Colors.white,):
+                          const TextStyle(fontFamily: 'RR', fontSize: 16, color: Colors.white,),
                         ),
                       ],
                     ),
-                    SizedBox(
-                      height: 20,
-                    ),
-                    Row(
-                      children: [
-                        Text(
-                          'Soups',
-                          style: TextStyle(
-                            fontFamily: 'RR',
-                            fontSize: 16,
-                            color: Colors.white,
-                          ),
-                        ),
-                        Spacer(),
-                        Text(
-                          '12',
-                          style: TextStyle(
-                            fontFamily: 'RR',
-                            fontSize: 16,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(
-                      height: 20,
-                    ),
-                    Row(
-                      children: [
-                        Text(
-                          'Starters/Appeetizers',
-                          style: TextStyle(
-                            fontFamily: 'RR',
-                            fontSize: 16,
-                            color: Colors.white,
-                          ),
-                        ),
-                        Spacer(),
-                        Text(
-                          '10',
-                          style: TextStyle(
-                            fontFamily: 'RR',
-                            fontSize: 16,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(
-                      height: 20,
-                    ),
-                    Row(
-                      children: [
-                        Text(
-                          'Curries & Gravies',
-                          style: TextStyle(
-                            fontFamily: 'RR',
-                            fontSize: 16,
-                            color: Colors.white,
-                          ),
-                        ),
-                        Spacer(),
-                        Text(
-                          '25',
-                          style: TextStyle(
-                            fontFamily: 'RR',
-                            fontSize: 16,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(
-                      height: 20,
-                    ),
-                    Row(
-                      children: [
-                        Text(
-                          'Curries & Gravies',
-                          style: TextStyle(
-                            fontFamily: 'RR',
-                            fontSize: 16,
-                            color: Colors.white,
-                          ),
-                        ),
-                        Spacer(),
-                        Text(
-                          '25',
-                          style: TextStyle(
-                            fontFamily: 'RR',
-                            fontSize: 16,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(
-                      height: 20,
-                    ),
-                    Row(
-                      children: [
-                        Text(
-                          'Curries & Gravies',
-                          style: TextStyle(
-                            fontFamily: 'RR',
-                            fontSize: 16,
-                            color: Colors.white,
-                          ),
-                        ),
-                        Spacer(),
-                        Text(
-                          '25',
-                          style: TextStyle(
-                            fontFamily: 'RR',
-                            fontSize: 16,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(
-                      height: 20,
-                    ),
-                    Row(
-                      children: [
-                        Text(
-                          'Curries & Gravies',
-                          style: TextStyle(
-                            fontFamily: 'RR',
-                            fontSize: 16,
-                            color: Colors.white,
-                          ),
-                        ),
-                        Spacer(),
-                        Text(
-                          '25',
-                          style: TextStyle(
-                            fontFamily: 'RR',
-                            fontSize: 16,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(
-                      height: 20,
-                    ),
-                    Row(
-                      children: [
-                        Text(
-                          'Curries & Gravies',
-                          style: TextStyle(
-                            fontFamily: 'RR',
-                            fontSize: 16,
-                            color: Colors.white,
-                          ),
-                        ),
-                        Spacer(),
-                        Text(
-                          '25',
-                          style: TextStyle(
-                            fontFamily: 'RR',
-                            fontSize: 16,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(
-                      height: 20,
-                    ),
-                    Row(
-                      children: [
-                        Text(
-                          'Curries & Gravies',
-                          style: TextStyle(
-                            fontFamily: 'RR',
-                            fontSize: 16,
-                            color: Colors.white,
-                          ),
-                        ),
-                        Spacer(),
-                        Text(
-                          '25',
-                          style: TextStyle(
-                            fontFamily: 'RR',
-                            fontSize: 16,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(
-                      height: 20,
-                    ),
-                    Row(
-                      children: [
-                        Text(
-                          'Curries & Gravies',
-                          style: TextStyle(
-                            fontFamily: 'RR',
-                            fontSize: 16,
-                            color: Colors.white,
-                          ),
-                        ),
-                        Spacer(),
-                        Text(
-                          '25',
-                          style: TextStyle(
-                            fontFamily: 'RR',
-                            fontSize: 16,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(
-                      height: 20,
-                    ),
-                    Row(
-                      children: [
-                        Text(
-                          'Curries & Gravies',
-                          style: TextStyle(
-                            fontFamily: 'RR',
-                            fontSize: 16,
-                            color: Colors.white,
-                          ),
-                        ),
-                        Spacer(),
-                        Text(
-                          '25',
-                          style: TextStyle(
-                            fontFamily: 'RR',
-                            fontSize: 16,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(
-                      height: 20,
-                    ),
-                    Row(
-                      children: [
-                        Text(
-                          'Curries & Gravies',
-                          style: TextStyle(
-                            fontFamily: 'RR',
-                            fontSize: 16,
-                            color: Colors.white,
-                          ),
-                        ),
-                        Spacer(),
-                        Text(
-                          '25',
-                          style: TextStyle(
-                            fontFamily: 'RR',
-                            fontSize: 16,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
+                  ),
+                );
+              },
+            )
           ),
           backgroundColor: CupertinoColors.black,
           actions: <Widget>[
@@ -966,23 +695,23 @@ class DialogExample extends StatelessWidget {
         height: 60,
         width: 60,
         alignment: Alignment.center,
-        decoration:
-            BoxDecoration(shape: BoxShape.circle, color: CupertinoColors.black),
-        child: Column(
+        decoration:  BoxDecoration(shape: BoxShape.circle, color: ColorUtil.primary),
+        child:  Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
           children: [
             Icon(
               Icons.message_outlined,
-              color: Colors.white,
-              size: 25,
+              color: ColorUtil.themeColor,
+              size: 20,
             ),
             Text(
               'Menu',
               style: TextStyle(
-                fontFamily: 'RR',
+                fontFamily: 'MB',
                 fontSize: 14,
-                color: Colors.white,
+                color: ColorUtil.themeColor,
               ),
             )
           ],
@@ -996,7 +725,7 @@ class DialogExample extends StatelessWidget {
 Future Addons(BuildContext context) {
   return showModalBottomSheet<void>(
     context: context,
-    shape: RoundedRectangleBorder(
+    shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.only(
             topLeft: Radius.circular(30),
             topRight: Radius.circular(30)
@@ -1036,7 +765,7 @@ Future Addons(BuildContext context) {
                   ),
                   Container(
                     width: SizeConfig.screenWidth!-198,
-                    padding: EdgeInsets.only(left: 20),
+                    padding: const EdgeInsets.only(left: 20),
                     height: 158,
                     child: Column(
                       crossAxisAlignment:
@@ -1045,7 +774,7 @@ Future Addons(BuildContext context) {
                       MainAxisAlignment.spaceEvenly,
                       children: [
                         Container(
-                          child: Text(
+                          child: const Text(
                             'Chicken Biriyani',
                             style: TextStyle(
                                 fontFamily: 'MB',
@@ -1055,7 +784,7 @@ Future Addons(BuildContext context) {
                         ),
                         Row(
                           children: [
-                            Text(
+                            const Text(
                               '4.5',
                               style:
                               TextStyle(
@@ -1072,7 +801,7 @@ Future Addons(BuildContext context) {
                               color:ColorUtil.themeColor,
                               size: 15,
                             ),
-                            Text(
+                            const Text(
                               '(233 ratings)',
                               style:
                               TextStyle(
@@ -1086,7 +815,7 @@ Future Addons(BuildContext context) {
                             ),
                           ],
                         ),
-                        Text(
+                        const Text(
                           '15 mins',
                           style:
                           TextStyle(
@@ -1098,7 +827,7 @@ Future Addons(BuildContext context) {
                                 .black,
                           ),
                         ),
-                        Text(
+                        const Text(
                           'You save 5.00 for this order',
                           style:
                           TextStyle(
@@ -1111,7 +840,7 @@ Future Addons(BuildContext context) {
                           ),
                         ),
                         Container(
-                          child: Text(
+                          child: const Text(
                             '250.00',
                             style: TextStyle(
                                 fontFamily: 'RB',
@@ -1124,9 +853,9 @@ Future Addons(BuildContext context) {
                   ),
                 ],
               ),
-              SizedBox(height: 15,),
+              const SizedBox(height: 15,),
               Container(
-                child: Text(
+                child: const Text(
                   'Lorem ipsum dolor sit amet consectetur. Gravida nunc volutpat sit lobortis pharetra augue. Sollicitudin condimen tum in tincidunt non molestie',
                   style:
                   TextStyle(
@@ -1139,7 +868,7 @@ Future Addons(BuildContext context) {
                   ),
                 ),
               ),
-              SizedBox(height: 15,),
+              const SizedBox(height: 15,),
               Align(
                 alignment: Alignment.topLeft,
                 child: Container(
@@ -1157,13 +886,13 @@ Future Addons(BuildContext context) {
                   ),
                 ),
               ),
-              SizedBox(height: 10,),
+              const SizedBox(height: 10,),
               AddonsPopup("Chilli Chicken  (RS10) "),
-              SizedBox(height: 10,),
+              const SizedBox(height: 10,),
               AddonsPopup("Prawn Chilli  (RS10) "),
-              SizedBox(height: 10,),
+              const SizedBox(height: 10,),
               AddonsPopup("Fish Fry  (RS10) "),
-              SizedBox(height: 20,),
+              const SizedBox(height: 20,),
               Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -1195,7 +924,7 @@ Future Addons(BuildContext context) {
                           color: ColorUtil.primaryColor.withOpacity(0.3),
                           blurRadius: 25.0, // soften the shadow
                           spreadRadius: 5.0, //extend the shadow
-                          offset: Offset(
+                          offset: const Offset(
                             0.0, // Move to right 10  horizontally
                             10.0, // Move to bottom 10 Vertically
                           ),
@@ -1212,11 +941,11 @@ Future Addons(BuildContext context) {
                             width: 15,
                             height: 15,
                             alignment: Alignment.center,
-                            decoration: BoxDecoration(
+                            decoration: const BoxDecoration(
                               shape: BoxShape.circle,
                               color: Color(0xff9E203F),
                             ),
-                            child: Text(
+                            child: const Text(
                               '12',
                               style: TextStyle(
                                   fontFamily: 'RM',
@@ -1243,15 +972,15 @@ Widget AddonsPopup(AddonName){
   return Container(
     width: SizeConfig.screenWidth,
     height: 50,
-    padding: EdgeInsets.only(left: 10, right: 10),
+    padding: const EdgeInsets.only(left: 10, right: 10),
     decoration: BoxDecoration(
-        color: Color(0XFFF5F5F5),
-        border: Border.all(color: Color(0XFFE4E4E4))
+        color: const Color(0XFFF5F5F5),
+        border: Border.all(color: const Color(0XFFE4E4E4))
     ),
     child: Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(AddonName,style: TextStyle(color: Colors.black,fontWeight: FontWeight.w700,fontSize: 14,fontFamily: 'MR'),),
+        Text(AddonName,style: const TextStyle(color: Colors.black,fontWeight: FontWeight.w700,fontSize: 14,fontFamily: 'MR'),),
         Container(
           width: 25,
           height: 25,
@@ -1265,4 +994,31 @@ Widget AddonsPopup(AddonName){
       ],
     ),
   );
+}
+
+class ProductTypeCircle extends StatelessWidget {
+  final String type;
+  const ProductTypeCircle({super.key,required this.type});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 21,
+      width: 21,
+      decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          border: Border.all(color: Colors.grey)
+      ),
+      child: Center(
+        child: Container(
+          height: 13,
+          width: 13,
+          decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: type=="Veg"?Colors.green:type=="Non Veg"?Colors.red:Colors.orange
+          ),
+        ),
+      ),
+    );
+  }
 }

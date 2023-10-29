@@ -32,11 +32,13 @@ class AddNewLabelTextField extends StatelessWidget {
   bool required;
   String dataname;
   double? width;
+  EdgeInsets? margin;
   late TextEditingController textEditingController;
 
   AddNewLabelTextField({this.labelText,this.scrollPadding=270.0,this.textInputType:TextInputType.text,this.width,
     this.prefixIcon,this.ontap,this.onChange,this.textInputFormatter,this.isEnabled=true,this.suffixIcon,this.onEditComplete,
-    this.isObscure=false,this.maxlines=1,this.textLength=null,this.regExp='[A-Za-z0-9@.,]',this.hasInput=true,this.required=false,required this.dataname}){
+    this.isObscure=false,this.maxlines=1,this.textLength=null,this.regExp='[A-Za-z0-9@.,]',this.hasInput=true,this.required=false,
+    required this.dataname,this.margin}){
     textEditingController= new TextEditingController();
   }
   var isValid=true.obs;
@@ -50,7 +52,7 @@ class AddNewLabelTextField extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
-          margin: ColorUtil.formMargin,
+          margin: margin??ColorUtil.formMargin,
           height: 50,
           width: width,
           decoration: BoxDecoration(
@@ -121,8 +123,8 @@ class AddNewLabelTextField extends StatelessWidget {
         ),
         Obx(
                 ()=>isValid.value?Container():Container(
-                margin:  EdgeInsets.only(left:20,right:20,bottom:5,),
-                child: Text(errorText.value,)
+                margin:  EdgeInsets.only(left:5,right:0,bottom:5,),
+                child: Text(errorText.value,style: TextStyle(color: Colors.red),)
             )
         ),
       ],

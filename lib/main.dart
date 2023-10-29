@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:foodecommerce/pages/navHomeScreen.dart';
 import 'package:foodecommerce/splashScreen.dart';
+import 'package:foodecommerce/utils/constants.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 
+import 'notifier/dynamicTableOrderNumbersNotifier.dart';
 import 'notifier/themeNotifier.dart';
 import 'pages/loginpage/login.dart';
 
@@ -17,43 +19,20 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return GetMaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'E-Commerce',
-      theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // Try running your application with "flutter run". You'll see the
-        // application has a blue toolbar. Then, without quitting the app, try
-        // changing the primarySwatch below to Colors.green and then invoke
-        // "hot reload" (press "r" in the console where you ran "flutter run",
-        // or simply save your changes to "hot reload" in a Flutter IDE).
-        // Notice that the counter didn't reset back to zero; the application
-        // is not restarted.
-        primarySwatch: Colors.blue,
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider<DynamicTableDetails>(create:(_)=>DynamicTableDetails()),
+      ],
+      child: GetMaterialApp(
+        debugShowCheckedModeBanner: false,
+        title: MyConstants.appName,
+        theme: ThemeData(
+          primarySwatch: Colors.blue,
+        ),
+        // home:CarouselDemo(),
+        home:SplashScreen(),
       ),
-      // home:CarouselDemo(),
-      home:SplashScreen(),
-      //loginPage()
-      //  home: ViewProductDetails(),
     );
-    // return MaterialApp(
-    //   debugShowCheckedModeBanner: false,
-    //   title: 'Flutter Demo',
-    //   theme: ThemeData(
-    //     // This is the theme of your application.
-    //     //
-    //     // Try running your application with "flutter run". You'll see the
-    //     // application has a blue toolbar. Then, without quitting the app, try
-    //     // changing the primarySwatch below to Colors.green and then invoke
-    //     // "hot reload" (press "r" in the console where you ran "flutter run",
-    //     // or simply save your changes to "hot reload" in a Flutter IDE).
-    //     // Notice that the counter didn't reset back to zero; the application
-    //     // is not restarted.
-    //     primarySwatch: Colors.blue,
-    //   ),
-    //   home: loginPage(),
-    // );
   }
 }
 

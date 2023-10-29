@@ -218,7 +218,7 @@ class _loginPageState extends State<loginPage>
                                                 border: InputBorder.none,
                                                 enabledBorder: InputBorder.none,
                                                 focusedBorder: InputBorder.none,
-                                                hintText: "Enter Phone Number",
+                                                hintText: "Enter Email",
                                                 hintStyle: TextStyle(
                                                     color: loginvalidation
                                                         ? Colors.red
@@ -230,10 +230,14 @@ class _loginPageState extends State<loginPage>
                                                     left: 20, top: 10),
                                                 //   fillColor: loginvalidation?HexColor("1C1F32"):Colors.white,
                                               ),
-                                              keyboardType: TextInputType.number,
-                                              maxLength: 10,
+                                              //keyboardType: TextInputType.number,
+                                              //maxLength: 10,
                                               validator: (value) {
-                                                if(value!.length<10){
+                                                if(value!.isEmpty){
+                                                  return 'Required';
+                                                }
+                                                return null;
+                                               /* if(value!.length<10){
                                                   return 'Phone Number format is invalid';
                                                 }
                                                 Pattern pattern =
@@ -244,7 +248,7 @@ class _loginPageState extends State<loginPage>
                                                   return 'Phone Number format is invalid';
                                                 } else {
                                                   return null;
-                                                }
+                                                }*/
                                               },
                                               onEditingComplete: () async {
                                                 node.unfocus();
@@ -256,6 +260,7 @@ class _loginPageState extends State<loginPage>
                                           ),
                                           GestureDetector(
                                             onTap: () {
+
                                               if(_loginFormKey.currentState!.validate()){
                                                 onLogin();
                                                 /*Navigator.push(

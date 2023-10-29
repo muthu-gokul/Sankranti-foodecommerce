@@ -10,7 +10,7 @@ class Sp{
   static String GetTableStatusSp="RB_Billing_Mobile_GetTableStatus";
   static String GenerateDyanmicTablesSp="USP_GenerateDyanmicTables";
 
-
+  static String MasterdropDown="RB_Billing_Mobile_GetMasterDetail";
 
   static String getAPICallInterval="USP_OnlinePlatform_GetAPICallInterval";
   static String getImages="RB_ProductImages_GetProductImagesDetail";
@@ -29,6 +29,8 @@ class Sp{
   static String getDeviceStatus="USP_GetDeviceStatusDetail";
   static String insertPin="USP_InsertCustomerMPINDetail";
   static String insertUserDevice="USP_InsertCustomerDeviceDetail";
+  static String getProfileDetail="RB_Customer_GetCustomerProfileDetail";
+  static String updateProfileDetail="RB_Customer_UpdateCustomerProfileDetail";
 
 
 }

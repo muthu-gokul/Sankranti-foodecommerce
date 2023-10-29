@@ -184,6 +184,7 @@ void assignLocalIpFromLocal() async{
 }
 
 const String SP_USER_ID="userid";
+const String SP_OUTLETID="outletid";
 const String SP_PIN="pin";
 const String SP_USERTYPEID="UserTypeId";
 const String SP_TOKEN="tokennumber";
@@ -198,3 +199,13 @@ const String SP_CURRENTCALLAPPOINTMENTID="appointmentid";
 const String SP_CURRENTCALLCLIENTOUTLETID="curroutletid";
 const String SP_FIREBASETOKEN="ft";
 const String SP_NOTIFICATIONBODY="nb";
+
+Map<String,dynamic>  overAllSettingsId = {
+  "billingLayout": 1,
+  "digitalMenuLayout": 2,
+  "paymentGateway":3,
+  "isHasRoundOff":4,
+  "listenForPendingKot":5,
+  "listenTimerForPendingKot":6
+};
+
