@@ -17,7 +17,8 @@ Future<void> initPlatformState() async {
     if (Platform.isAndroid) {
       deviceData = _readAndroidBuildData(await deviceInfoPlugin.androidInfo);
     } else if (Platform.isIOS) {
-      // deviceData = _readIosDeviceInfo(await deviceInfoPlugin.iosInfo);
+       deviceData = _readIosDeviceInfo(await deviceInfoPlugin.iosInfo);
+       print("deviceData $deviceData");
     }
   } on PlatformException {
     deviceData = <String, dynamic>{
@@ -56,6 +57,12 @@ Map<String, dynamic> _readAndroidBuildData(AndroidDeviceInfo build) {
     'androidId': build.androidId,
     'systemFeatures': build.systemFeatures,
     'ver':build.version.toString()
+  };
+}
+Map<String, dynamic> _readIosDeviceInfo(IosDeviceInfo build) {
+  return <String, dynamic>{
+    'id': build.identifierForVendor,
+    'identifierForVendor': build.identifierForVendor,
   };
 }
 

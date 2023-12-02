@@ -45,7 +45,7 @@ dependencies:
   geolocator:
   date_format:
   flutter_date_pickers:
-  google_maps_flutter: ^2.1.1
+  google_maps_flutter:
   geocoding:
   rational: ^1.2.1
   decimal:
@@ -56,14 +56,14 @@ dependencies:
   flutter_polyline_points:
   url_launcher:
   firebase_crashlytics:
-  google_geocoding: ^0.2.0
+  google_geocoding:
   permission_handler:
   battery_info:
   connectivity:
   basic_utils:
   path_provider:
   math_expressions:
-  flutter_html:
+  flutter_html: ^3.0.0-beta.2
   device_info:
   uuid:
   local_auth:
