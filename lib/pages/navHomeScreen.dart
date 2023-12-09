@@ -127,7 +127,7 @@ class _MasterpageState extends State<Masterpage> {
                   SizedBox(height: 10,),
                   Obx(
                     ()=> Text('${profileDetail['CustomerName']??""}'
-                      ,style: TextStyle(fontFamily: 'RB',fontSize: 17,color: Colors.white,letterSpacing: 0.1),),
+                      ,style: TextStyle(fontFamily: 'RB',fontSize: 17,color: Colors.white,letterSpacing: 0.1),textAlign: TextAlign.center,),
                   ),
                   SizedBox(height: 5,),
                   // Container(

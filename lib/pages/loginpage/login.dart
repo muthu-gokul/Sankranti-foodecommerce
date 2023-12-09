@@ -6,11 +6,13 @@ import 'package:foodecommerce/notifier/Billing/configuration.dart';
 import 'package:foodecommerce/pages/loginpage/mail-otp/components/otp_form.dart';
 import 'package:foodecommerce/styles/style.dart';
 import 'package:foodecommerce/utils/colorUtil.dart';
+import 'package:get/get.dart';
 
 import '../../api/sp.dart';
 import '../../models/parameterMode.dart';
 import '../../notifier/utils/apiUtils.dart';
 import '../../utils/sizeLocal.dart';
+import '../../widgets/loader.dart';
 import '../navHomeScreen.dart';
 import 'phone-otp/otp_screen.dart';
 
@@ -258,17 +260,11 @@ class _loginPageState extends State<loginPage>
                                           SizedBox(
                                             height: 30,
                                           ),
-                                          GestureDetector(
+                                          Obx(() =>showLoader.value?CircularBtn(): GestureDetector(
                                             onTap: () {
 
                                               if(_loginFormKey.currentState!.validate()){
                                                 onLogin();
-                                                /*Navigator.push(
-                                                  context,
-                                                  MaterialPageRoute(
-                                                      builder: (context) =>
-                                                          PhoneScreen()),
-                                                );*/
                                               }
 
                                             },
@@ -289,7 +285,7 @@ class _loginPageState extends State<loginPage>
                                                     fontSize: 16),
                                               ),
                                             ),
-                                          ),
+                                          ),),
                                           SizedBox(
                                             height: 20,
                                           ),

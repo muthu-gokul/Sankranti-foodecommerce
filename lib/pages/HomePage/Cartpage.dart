@@ -4,6 +4,7 @@ import 'package:flutter_html/flutter_html.dart';
 import 'package:foodecommerce/notifier/utils.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
+import '../../api/ApiManager.dart';
 import '../../notifier/Billing/cartNotifier.dart';
 import '../../notifier/Billing/orderSettlementNotifier.dart';
 import '../../styles/constants.dart';
@@ -13,6 +14,7 @@ import '../../utils/constants.dart';
 import '../../utils/sizeLocal.dart';
 import '../../widgets/customAppBar.dart';
 import '../../widgets/customNetworkImg.dart';
+import '../../widgets/loader.dart';
 import '../navHomeScreen.dart';
 
 class CartPage extends StatefulWidget {
@@ -261,10 +263,10 @@ class _CartPageState extends State<CartPage> {
                           ],
                         ),
                       ),*/
-                      GestureDetector(
+                      Obx(() =>showLoader.value?CircularBtn(): GestureDetector(
                         onTap: (){
                           PlaceOrder(
-                              (){
+                                  (){
                                 Get.close(2);
                                 menuSel.value=4;
                               }
@@ -281,7 +283,7 @@ class _CartPageState extends State<CartPage> {
                           margin: EdgeInsets.only(bottom: 10,left: 10,right: 10),
                           child: Text("Place Your Order   ${MyConstants.rupeeString} ${HasOutletRoundOff()?c_orderDetail.value!.grandTotalAmount!.round():c_orderDetail.value!.grandTotalAmount}",style: TextStyle(fontFamily: 'RB',fontSize:18,color: ColorUtil.primaryColor,letterSpacing: 0.1),),
                         ),
-                      ),
+                      ),)
                     ],
                   ),
                 ),

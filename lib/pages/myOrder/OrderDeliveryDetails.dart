@@ -291,7 +291,7 @@ class _OrderDeliveryDetailsState extends State<OrderDeliveryDetails> {
                                       MainAxisAlignment.spaceBetween,
                                       children: [
                                         Text(
-                                          'Total payable',
+                                          'Total Payable',
                                           style: TextStyle(
                                             fontSize: 17,
                                             fontFamily: 'RB',

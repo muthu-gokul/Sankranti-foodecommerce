@@ -217,13 +217,30 @@ class _MYOrderDetailsState extends State<MYOrderDetails> {
                       const SizedBox(height:20,),
                       Container(
                           margin: const EdgeInsets.only(left: 10.0,right: 10),
-                          padding: const EdgeInsets.all(10),
+                          padding: const EdgeInsets.only(left: 10,right: 10),
                           alignment: Alignment.centerLeft,
                           decoration: BoxDecoration(
                               color: ColorUtil.primary,
                               borderRadius: BorderRadius.circular(5)
                           ),
-                          child: Text('Ongoing Orders',style:ts18(ColorUtil.themeBlack,fontfamily: 'RB',),)
+                          child: Row(
+                            children: [
+                              Text('Ongoing Orders',style:ts18(ColorUtil.themeBlack,fontfamily: 'RB',),),
+                              const Spacer(),
+                              GestureDetector(
+                                onTap: (){
+                                  loadOrders();
+                                },
+                                child: Container(
+                                  height: 45,
+                                  width: 45,
+                                  color: Colors.transparent,
+                                  alignment: Alignment.center,
+                                  child: Icon(Icons.refresh,color: ColorUtil.themeColor,size: 28,),
+                                ),
+                              )
+                            ],
+                          )
                       ),
                       Obx(() =>  Visibility(
                         visible: onGoingOrders.isNotEmpty,
@@ -335,7 +352,7 @@ class _MYOrderDetailsState extends State<MYOrderDetails> {
                       const SizedBox(height:20,),
                       Container(
                           margin: const EdgeInsets.only(left: 10.0,right: 10),
-                          padding: const EdgeInsets.fromLTRB(10,5,10,5),
+                          padding: const EdgeInsets.fromLTRB(10,0,10,0),
                           alignment: Alignment.center,
                           decoration: BoxDecoration(
                             color: ColorUtil.primary,
@@ -362,8 +379,8 @@ class _MYOrderDetailsState extends State<MYOrderDetails> {
                                   });
                                 },
                                 child: Container(
-                                    height: 35,
-                                    width: 35,
+                                    height: 45,
+                                    width: 45,
                                     color: Colors.transparent,
                                     alignment: Alignment.center,
                                     child: Icon(Icons.date_range_rounded,color: ColorUtil.themeBlack,)

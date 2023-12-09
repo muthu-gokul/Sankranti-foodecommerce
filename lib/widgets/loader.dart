@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../styles/constants.dart';
+import '../utils/colorUtil.dart';
 import '../utils/sizeLocal.dart';
 
 
@@ -56,5 +57,13 @@ class Blur extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+class CircularBtn extends StatelessWidget {
+  const CircularBtn({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container( height: 60,alignment:Alignment.center,child: CircularProgressIndicator(color: ColorUtil.themeColor,));
   }
 }

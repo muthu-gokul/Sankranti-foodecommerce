@@ -33,12 +33,13 @@ class AddNewLabelTextField extends StatelessWidget {
   String dataname;
   double? width;
   EdgeInsets? margin;
+  bool needEmailValidation;
   late TextEditingController textEditingController;
 
   AddNewLabelTextField({this.labelText,this.scrollPadding=270.0,this.textInputType:TextInputType.text,this.width,
     this.prefixIcon,this.ontap,this.onChange,this.textInputFormatter,this.isEnabled=true,this.suffixIcon,this.onEditComplete,
     this.isObscure=false,this.maxlines=1,this.textLength=null,this.regExp='[A-Za-z0-9@.,]',this.hasInput=true,this.required=false,
-    required this.dataname,this.margin}){
+    required this.dataname,this.margin,this.needEmailValidation=false}){
     textEditingController= new TextEditingController();
   }
   var isValid=true.obs;
@@ -205,6 +206,9 @@ class AddNewLabelTextField extends StatelessWidget {
 
   validate(){
     requiredCheck();
+    if(needEmailValidation&&isValid.value){
+      emailValidation();
+    }
     return isValid.value;
   }
   requiredCheck(){

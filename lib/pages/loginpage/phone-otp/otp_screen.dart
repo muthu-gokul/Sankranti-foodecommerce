@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:foodecommerce/notifier/utils.dart';
+import 'package:get/get.dart';
 import 'package:scutiwidgets/alertDialog.dart';
 import '../../../api/ApiManager.dart';
 import '../../../api/sp.dart';
@@ -10,6 +11,7 @@ import '../../../notifier/Billing/configuration.dart';
 import '../../../notifier/utils/apiUtils.dart';
 import '../../../utils/colorUtil.dart';
 import '../../../utils/sizeLocal.dart';
+import '../../../widgets/loader.dart';
 import '../../../widgets/pinWidget.dart';
 import '../../HomePage/branchSelect.dart';
 import '../login.dart';
@@ -122,13 +124,9 @@ class PhoneScreen extends StatelessWidget {
                     Image.asset('assets/images/loginpages/mobile-app.gif',fit: BoxFit.contain,),
                     pinWidget,
                     const SizedBox(height:30),
-                    GestureDetector(
+                    Obx(() =>showLoader.value?CircularBtn(): GestureDetector(
                       onTap: (){
-
                         onVerify(context);
-                        // Navigator.push(context, MaterialPageRoute(builder: (context)=>BranchSelect()),);
-
-
                       },
                       child:Container(
                         height: 60,
@@ -148,7 +146,7 @@ class PhoneScreen extends StatelessWidget {
                               fontSize: 16),
                         ),
                       ),
-                    ),
+                    ),)
                   ],
                 ),
               ),
@@ -178,6 +176,7 @@ class PhoneScreen extends StatelessWidget {
           setSharedPrefString(parsed["Table"][0]["CustomerId"], SP_USER_ID);
           customerId=parseInt(parsed["Table"][0]["CustomerId"]);
           createPin("");
+          Navigator.pop(context);
           Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>BranchSelect()),);
         }
         else{

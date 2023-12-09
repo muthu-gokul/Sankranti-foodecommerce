@@ -351,6 +351,7 @@ class customerDetail extends StatelessWidget {
     addNewLabelTextField.textInputType=Title=='Phone Number'?TextInputType.number:TextInputType.emailAddress;
     addNewLabelTextField.regExp=regEx;
     addNewLabelTextField.textLength=Title=='Phone Number'?15:null;
+    addNewLabelTextField.needEmailValidation=Title=='Email';
   }
   RxBool isEdit=RxBool(false);
   RxBool refresh=RxBool(false);
@@ -443,6 +444,7 @@ class customerDetail extends StatelessWidget {
                   onTap: (){
                     isEdit.value=false;
                     addNewLabelTextField.setValue(Detials);
+                    addNewLabelTextField.isValid.value=true;
                   },
                   child: Container(
                     height: 40,

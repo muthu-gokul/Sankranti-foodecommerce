@@ -49,19 +49,29 @@ class _CustomNetworkImgState extends State<CustomNetworkImg> {
 
   @override
   Widget build(BuildContext context) {
-    return Obx(() => loaded.value?Image(
-        image: fileImage,
-        key: UniqueKey(),
-        fit: widget.fit??BoxFit.contain,
-        //fit: BoxFit.fitHeight,
-        width: widget.width,
-        height: widget.height,
-        errorBuilder: (a,b,c){
-          return widget.errorBuilder??Image.asset(widget.errorImage,fit: BoxFit.cover);
-        },
-     /* loadingBuilder: (a,b,c){
-          return ImgShimmer();
-      },*/
+    return Obx(() => loaded.value?Container(
+      clipBehavior: Clip.antiAlias,
+      width: widget.width,
+      height: widget.height,
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle
+      ),
+      child: Image(
+          image: fileImage,
+          key: UniqueKey(),
+          fit: widget.fit??BoxFit.contain,
+          //fit: BoxFit.fitHeight,
+          width: widget.width,
+          height: widget.height,
+          errorBuilder: (a,b,c){
+            return widget.errorBuilder??Image.asset(widget.errorImage,fit: BoxFit.cover);
+          },
+        isAntiAlias: true,
+       /* loadingBuilder: (a,b,c){
+            return ImgShimmer();
+        },*/
+      ),
     ): ImgShimmer(
       height: widget.loaderHeight,
       width: widget.loaderWidth,
