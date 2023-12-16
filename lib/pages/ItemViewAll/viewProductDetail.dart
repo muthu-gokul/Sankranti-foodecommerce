@@ -180,6 +180,7 @@ class _ViewProductDetailsState extends State<ViewProductDetails> {
                     ],
                   ),
                   const SizedBox(height: 20,),
+                  Obx(() => Visibility(visible:filterproduct.isEmpty,child: Text("No Items Added Yet"))),
                   /*Row(
                     children: [
                       Container(
@@ -856,7 +857,7 @@ Future Addons(BuildContext context) {
               const SizedBox(height: 15,),
               Container(
                 child: const Text(
-                  'Lorem ipsum dolor sit amet consectetur. Gravida nunc volutpat sit lobortis pharetra augue. Sollicitudin condimen tum in tincidunt non molestie',
+                  'Proudct',
                   style:
                   TextStyle(
                     fontFamily:

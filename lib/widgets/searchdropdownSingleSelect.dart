@@ -277,7 +277,7 @@ class DropDownField extends FormField<String> {
               //   minHeight: 50
               // ),
               child: RawScrollbar(
-                isAlwaysShown: true,
+                thumbVisibility: true,
                 radius: Radius.circular(4),
                 thickness: 4,
                 controller: _scrollController,

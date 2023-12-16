@@ -16,9 +16,9 @@ String databaseName="";
 int outletId=0;
 List<ParameterModel> params=[];
 
-String devURL="https://scutisoft.in/QMS_UAT_Test";
+//String devURL="https://scutisoft.in/QMS_UAT_Test";
 //String devURL="http://45.126.252.78/QMS_UAT_Test";
-//String devURL="http://192.168.1.102/QMS_UAT_Test";
+String devURL="http://192.168.1.102/QMS_UAT_Test";
 String GetBaseUrl(){
  // return "http://45.126.252.78/QMS_UAT_Test";
   //return "http://45.126.252.78/RestaBilling_Dev";
